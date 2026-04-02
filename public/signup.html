@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kripto Mine - Create Account</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/icon-helper.js" defer></script>
+  <script src="/signup.js" defer></script>
+</head>
+<body class="signup-page min-h-screen text-white">
+  <main class="signup-shell">
+    <div class="signup-frame">
+      <div class="brand-row">
+        <span class="brand-badge">
+          <img src="/images/bitcoin-btc-logo.png" alt="Kripto Mine logo" class="brand-logo-image">
+        </span>
+        <div>
+          <h1 class="brand-title">Kripto Mine</h1>
+        </div>
+      </div>
+      <p class="brand-subtitle">Secure crypto access with a cleaner, faster signup experience.</p>
+
+      <section class="signup-card" aria-labelledby="signupTitle">
+        <div class="signup-card-header">
+          <h2 id="signupTitle" class="signup-heading">Create Account</h2>
+          <p class="signup-copy">Join our crypto mining platform</p>
+          <div id="iconTray" class="coin-row" aria-hidden="true"></div>
+        </div>
+
+        <div class="signup-card-body">
+          <div id="formMessage" class="form-message" role="alert" aria-live="polite"></div>
+
+          <form id="signup-form" class="field-stack" novalidate>
+            <input type="hidden" id="csrfToken" name="_csrf" aria-hidden="true">
+
+            <div class="field-shell">
+              <label for="username" class="sr-only">Full name or username</label>
+              <span class="field-icon" aria-hidden="true">👤</span>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="Full Name or Username"
+                required
+                aria-required="true"
+                autocomplete="username"
+              >
+            </div>
+
+            <div class="field-shell">
+              <label for="displayEmail" class="sr-only">Email address</label>
+              <span class="field-icon" aria-hidden="true">✉️</span>
+              <input
+                id="displayEmail"
+                name="displayEmail"
+                type="email"
+                placeholder="Email Address"
+                autocomplete="email"
+              >
+            </div>
+
+            <div class="field-shell">
+              <label for="mobile" class="sr-only">Phone number</label>
+              <span class="field-icon" aria-hidden="true">📱</span>
+              <input
+                id="mobile"
+                name="mobile"
+                type="tel"
+                placeholder="Phone Number (2547XXXXXXXX)"
+                required
+                aria-required="true"
+                autocomplete="tel"
+                inputmode="numeric"
+              >
+            </div>
+
+            <div class="field-shell">
+              <label for="password" class="sr-only">Password</label>
+              <span class="field-icon" aria-hidden="true">🔒</span>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Password"
+                required
+                aria-required="true"
+                autocomplete="new-password"
+              >
+              <button type="button" class="toggle-visibility" data-toggle-password data-target="password" aria-label="Toggle password visibility">Show</button>
+            </div>
+
+            <div class="field-shell">
+              <label for="confirmPassword" class="sr-only">Confirm password</label>
+              <span class="field-icon" aria-hidden="true">🔒</span>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="Confirm Password"
+                required
+                aria-required="true"
+                autocomplete="new-password"
+              >
+            </div>
+
+            <button id="signup-btn" type="submit" class="signup-submit focus:outline-none focus:ring-2 focus:ring-blue-400">
+              <span>Create Your Account</span>
+              <span aria-hidden="true">→</span>
+            </button>
+          </form>
+
+          <div class="helper-card">
+            <span class="helper-icon" aria-hidden="true">ℹ️</span>
+            <p class="m-0 text-sm leading-6">By signing up, you'll get access to our crypto mining platform with daily rewards and secure withdrawals.</p>
+          </div>
+        </div>
+
+        <div class="signup-meta">
+          <p class="m-0">Already have an account? <a href="/index.html">Login</a></p>
+          <div class="helpline">24/7 Helpline</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kripto Mine - Manage Users</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=family" rel="stylesheet">
+  <script src="/socket.io/socket.io.js" defer></script>
+  <script src="/manage-users.js" defer></script>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(180deg, #1a202c, #2d3748);
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+    .container {
+      max-width: 100%;
+      padding: 0 1rem;
+    }
+    @media (min-width: 1536px) {
+      .container {
+        max-width: 1536px;
+      }
+    }
+    .card {
+      background: #2d3748;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+    .nav-item.active {
+      color: #3b82f6;
+      font-weight: 600;
+      border-bottom: 2px solid #3b82f6;
+    }
+    .nav-item:hover {
+      color: #60a5fa;
+      transition: color 0.2s ease;
+    }
+    .avatar {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    }
+    .action-btn {
+      transition: background-color 0.2s ease, transform 0.2s ease;
+      position: relative;
+    }
+    .action-btn:hover {
+      transform: scale(1.05);
+    }
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .action-btn .spinner {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 2px solid #fff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 1s linear infinite;
+    }
+    .action-btn.loading .spinner {
+      display: block;
+    }
+    .action-btn.loading span {
+      visibility: hidden;
+    }
+    .row-item {
+      transition: background-color 0.2s ease;
+    }
+    .row-item:hover {
+      background-color: #3b4a6b;
+    }
+    .modal {
+      background: rgba(0, 0, 0, 0.7);
+    }
+    .modal-content {
+      background: #2d3748;
+      border-radius: 12px;
+    }
+    .error-message {
+      color: #f87171;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container mx-auto">
+    <!-- Header -->
+    <header class="bg-gray-900 py-6 px-4 sm:px-6 lg:px-8 shadow-lg">
+      <div class="header-content flex flex-col sm:flex-row sm:justify-between sm:items-center">
+        <div class="left-section">
+          <h1 class="text-2xl sm:text-3xl font-bold text-white">Kripto Mine- Manage Users</h1>
+          <div class="user-info mt-2 sm:mt-0 flex items-center space-x-4">
+            <div class="avatar rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg text-white" id="avatar">A</div>
+            <div class="user-details">
+              <span class="user-name font-semibold text-lg" id="user-name">Loading...</span>
+              <span class="mobile text-sm text-gray-400 block" id="user-mobile">Mobile: Loading...</span>
+            </div>
+          </div>
+        </div>
+        <div class="notification relative mt-4 sm:mt-0">
+          <span class="bell text-2xl cursor-pointer">🔔</span>
+          <span class="red-dot absolute top-0 right-0 bg-red-500 rounded-full w-3 h-3" id="notification-dot"></span>
+        </div>
+      </div>
+    </header>
+    <div class="main-content py-6 px-4 sm:px-6 lg:px-8">
+      <!-- Users Section -->
+      <div class="card p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Manage Users</h2>
+        <div id="error-message" class="error-message text-sm mb-4"></div>
+        <ul id="user-list" class="space-y-3"></ul>
+      </div>
+    </div>
+  </div>
+  <!-- BOTTOM APP NAVIGATION (Dynamically included from navbar.html) -->
+  <div id="app-nav"></div>
+
+  <!-- Shared Navbar Loader (no inline scripts) -->
+  <script src="/navbar-loader.js" defer></script>
+
+  <!-- IMPORTANT: Load your refactored JS file here -->
+  <script src="/manage-users.js" defer></script>
+</body>
+</html>

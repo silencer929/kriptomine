@@ -1,0 +1,345 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kripto Mine - Portfolio</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/socket.io/socket.io.js" defer></script>
+  <script src="/portfolio.js" defer></script>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="portfolio-page">
+  <main class="dashboard-shell">
+    <div class="container">
+      <header class="section dashboard-hero">
+        <div class="hero-top">
+          <div>
+            <p class="hero-eyebrow">Portfolio Overview</p>
+            <h1 class="hero-title">Welcome to Kripto Mine</h1>
+          </div>
+          <button type="button" class="bell-button" aria-label="Notifications">
+            <span aria-hidden="true">🔔</span>
+            <span class="bell-count">3</span>
+          </button>
+        </div>
+
+        <div class="hero-user-card">
+          <div class="avatar rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg text-white" id="avatar">U</div>
+          <div class="hero-user-copy">
+            <span class="user-name" id="user-name">Loading...</span>
+            <span class="user-mobile" id="user-mobile">Mobile: Loading...</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="main-content">
+        <section class="section transaction-section feature-card">
+          <div class="section-heading-row">
+            <div class="section-heading">
+              <h2>Transactions</h2>
+              <span class="live-pill"><span class="dot">●</span> LIVE</span>
+            </div>
+            <span class="section-meta" id="market-volume">Volume: KES 81.92M</span>
+          </div>
+
+          <div id="transaction-list" class="transaction-list">
+            <div class="transaction-row transaction-card-inner">
+              <div class="transaction-asset">
+                <img src="/images/tether-usdt-logo.png" alt="USDT" class="transaction-logo">
+                <div>
+                  <div class="transaction-symbol">USDT</div>
+                  <div class="transaction-reference">01****076</div>
+                  <span class="transaction-badge">Deposit</span>
+                </div>
+              </div>
+              <div class="amount-info">
+                <span class="transaction-kes">KES 85,456</span>
+                <span class="transaction-time">Just now</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section balance-section balance-hero">
+          <div class="balance-copy">
+            <p class="balance-title">Total Available Balance</p>
+            <div class="currency-line">
+              <span class="currency-prefix">KES</span>
+              <h2 class="balance-amount" id="portfolio-balance">0.00</h2>
+            </div>
+            <div class="balance-buttons">
+              <button class="deposit-btn action-btn" type="button">
+                <span aria-hidden="true">💼</span>
+                <span>Deposit</span>
+              </button>
+              <button class="withdraw-btn action-btn action-secondary" type="button">
+                <span aria-hidden="true">⇅</span>
+                <span>Withdraw</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="balance-icons" aria-hidden="true">
+            <img src="/images/bitcoin-btc-logo.png" alt="" class="tiny-coin">
+            <img src="/images/ethereum-eth-logo.png" alt="" class="tiny-coin">
+            <img src="/images/xrp-xrp-logo.png" alt="" class="tiny-coin">
+          </div>
+        </section>
+
+        <section class="asset-strip" aria-label="Tracked assets">
+          <article class="asset-summary-card crypto-card active-asset">
+            <div class="asset-top">
+              <img src="/images/bitcoin-btc-logo.png" alt="BTC" class="coin-image w-10 h-10 rounded-full">
+              <div>
+                <div class="asset-symbol">BTC</div>
+                <p class="asset-price" id="btc-value">0.0000 BTC</p>
+              </div>
+            </div>
+            <p class="percentage positive" id="btc-percentage">+0.00%</p>
+          </article>
+
+          <article class="asset-summary-card crypto-card">
+            <div class="asset-top">
+              <img src="/images/ethereum-eth-logo.png" alt="ETH" class="coin-image w-10 h-10 rounded-full">
+              <div>
+                <div class="asset-symbol">ETH</div>
+                <p class="asset-price" id="eth-value">0.0000 ETH</p>
+              </div>
+            </div>
+            <p class="percentage positive" id="eth-percentage">+0.00%</p>
+          </article>
+
+          <article class="asset-summary-card crypto-card">
+            <div class="asset-top">
+              <img src="/images/xrp-xrp-logo.png" alt="XRP" class="coin-image w-10 h-10 rounded-full">
+              <div>
+                <div class="asset-symbol">XRP</div>
+                <p class="asset-price" id="xrp-value">0.0000 XRP</p>
+              </div>
+            </div>
+            <p class="percentage positive" id="xrp-percentage">+0.00%</p>
+          </article>
+
+          <article class="asset-summary-card crypto-card">
+            <div class="asset-top">
+              <img src="/images/litecoin-ltc-logo.png" alt="LTC" class="coin-image w-10 h-10 rounded-full">
+              <div>
+                <div class="asset-symbol">LTC</div>
+                <p class="asset-price" id="ltc-value">0.0000 LTC</p>
+              </div>
+            </div>
+            <p class="percentage positive" id="ltc-percentage">+0.00%</p>
+          </article>
+
+          <article class="asset-summary-card crypto-card">
+            <div class="asset-top">
+              <img src="/images/dogecoin-doge-logo.png" alt="DOGE" class="coin-image w-10 h-10 rounded-full">
+              <div>
+                <div class="asset-symbol">DOGE</div>
+                <p class="asset-price" id="doge-value">0.0000 DOGE</p>
+              </div>
+            </div>
+            <p class="percentage positive" id="doge-percentage">+0.00%</p>
+          </article>
+
+          <article class="asset-summary-card crypto-card">
+            <div class="asset-top">
+              <img src="/images/tether-usdt-logo.png" alt="USDT" class="coin-image w-10 h-10 rounded-full">
+              <div>
+                <div class="asset-symbol">USDT</div>
+                <p class="asset-price" id="usdt-value">0.0000 USDT</p>
+              </div>
+            </div>
+            <p class="percentage positive" id="usdt-percentage">+0.00%</p>
+          </article>
+        </section>
+
+        <section class="section chart-panel">
+          <div class="chart-panel-top">
+            <div>
+              <div class="pair-row">
+                <span class="pair-accent">₿</span>
+                <span id="coin-pair" class="pair-label">BTC/USD</span>
+              </div>
+              <div class="chart-price" id="coin-price">$0.00</div>
+              <div id="coin-percentage" class="percentage chart-change">0.00%</div>
+            </div>
+
+            <div class="chart-controls">
+              <div class="time-buttons" role="tablist" aria-label="Time ranges">
+                <button class="time-button" type="button" data-time="1H">1H</button>
+                <button class="time-button" type="button" data-time="1D">1D</button>
+                <button class="time-button" type="button" data-time="1W">1W</button>
+                <button class="time-button" type="button" data-time="1M">1M</button>
+                <button class="time-button" type="button" data-time="1Y">1Y</button>
+              </div>
+              <span id="last-updated" class="chart-updated">Last updated: --:--:--</span>
+            </div>
+          </div>
+
+          <div class="chart-container mt-5">
+            <canvas id="priceChart"></canvas>
+          </div>
+
+          <div class="coin-buttons coin-selector-row">
+            <button class="coin-button" type="button" data-coin="bitcoin" data-symbol="BTC">BTC</button>
+            <button class="coin-button" type="button" data-coin="ethereum" data-symbol="ETH">ETH</button>
+            <button class="coin-button" type="button" data-coin="ripple" data-symbol="XRP">XRP</button>
+            <button class="coin-button" type="button" data-coin="litecoin" data-symbol="LTC">LTC</button>
+            <button class="coin-button" type="button" data-coin="dogecoin" data-symbol="DOGE">DOGE</button>
+            <button class="coin-button" type="button" data-coin="tether" data-symbol="USDT">USDT</button>
+          </div>
+        </section>
+
+        <section class="section mining-section">
+          <div class="section-heading-row">
+            <div class="section-heading"><h2>Mining Services</h2></div>
+          </div>
+          <div class="service-grid">
+            <button class="mining-button service-card" type="button" data-action="deposit">
+              <span class="service-icon">💼</span>
+              <span>Deposit</span>
+            </button>
+            <button class="mining-button service-card" type="button" data-action="mining-packages">
+              <span class="service-icon">🗄️</span>
+              <span>Mining Packages</span>
+            </button>
+            <button class="mining-button service-card" type="button" data-action="my-deposits">
+              <span class="service-icon">📉</span>
+              <span>My Deposits</span>
+            </button>
+            <button class="mining-button service-card" type="button" data-action="withdrawals">
+              <span class="service-icon">⇅</span>
+              <span>Withdrawals</span>
+            </button>
+            <button class="mining-button service-card" type="button" data-action="support">
+              <span class="service-icon">🎧</span>
+              <span>Support</span>
+            </button>
+            <button class="mining-button service-card" type="button" data-action="company">
+              <span class="service-icon">🌐</span>
+              <span>Company</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="section trends-section">
+          <div class="section-heading-row">
+            <div class="section-heading"><h2>Market Trends</h2></div>
+          </div>
+
+          <div class="trend-list" id="market-trends">
+            <div class="trend-row">
+              <div class="trend-identity">
+                <img src="/images/bitcoin-btc-logo.png" alt="Bitcoin" class="coin-image w-8 h-8 rounded-full">
+                <div class="trend-meta">
+                  <span class="coin-name">Bitcoin</span>
+                  <span class="coin-pair">BTC/USD</span>
+                </div>
+              </div>
+              <div class="trend-values">
+                <span class="price" id="bitcoin-price">$80,018.30</span>
+                <span class="percentage" id="bitcoin-trend">+9.87%</span>
+              </div>
+            </div>
+
+            <div class="trend-row">
+              <div class="trend-identity">
+                <img src="/images/ethereum-eth-logo.png" alt="Ethereum" class="coin-image w-8 h-8 rounded-full">
+                <div class="trend-meta">
+                  <span class="coin-name">Ethereum</span>
+                  <span class="coin-pair">ETH/USD</span>
+                </div>
+              </div>
+              <div class="trend-values">
+                <span class="price" id="ethereum-price">$4,604.90</span>
+                <span class="percentage" id="ethereum-trend">+9.11%</span>
+              </div>
+            </div>
+
+            <div class="trend-row">
+              <div class="trend-identity">
+                <img src="/images/xrp-xrp-logo.png" alt="Ripple" class="coin-image w-8 h-8 rounded-full">
+                <div class="trend-meta">
+                  <span class="coin-name">Ripple</span>
+                  <span class="coin-pair">XRP/USD</span>
+                </div>
+              </div>
+              <div class="trend-values">
+                <span class="price" id="ripple-price">$0.63</span>
+                <span class="percentage" id="ripple-trend">+8.81%</span>
+              </div>
+            </div>
+
+            <div class="trend-row">
+              <div class="trend-identity">
+                <img src="/images/litecoin-ltc-logo.png" alt="Litecoin" class="coin-image w-8 h-8 rounded-full">
+                <div class="trend-meta">
+                  <span class="coin-name">Litecoin</span>
+                  <span class="coin-pair">LTC/USD</span>
+                </div>
+              </div>
+              <div class="trend-values">
+                <span class="price" id="litecoin-price">$97.82</span>
+                <span class="percentage" id="litecoin-trend">+9.74%</span>
+              </div>
+            </div>
+
+            <div class="trend-row">
+              <div class="trend-identity">
+                <img src="/images/dogecoin-doge-logo.png" alt="Dogecoin" class="coin-image w-8 h-8 rounded-full">
+                <div class="trend-meta">
+                  <span class="coin-name">Dogecoin</span>
+                  <span class="coin-pair">DOGE/USD</span>
+                </div>
+              </div>
+              <div class="trend-values">
+                <span class="price" id="dogecoin-price">$0.14</span>
+                <span class="percentage" id="dogecoin-trend">+7.53%</span>
+              </div>
+            </div>
+
+            <div class="trend-row">
+              <div class="trend-identity">
+                <img src="/images/tether-usdt-logo.png" alt="Tether" class="coin-image w-8 h-8 rounded-full">
+                <div class="trend-meta">
+                  <span class="coin-name">Tether</span>
+                  <span class="coin-pair">USDT/USD</span>
+                </div>
+              </div>
+              <div class="trend-values">
+                <span class="price" id="tether-price">$1.17</span>
+                <span class="percentage" id="tether-trend">+6.68%</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section admin-section hidden" id="admin-section">
+          <div class="section-heading-row">
+            <div class="section-heading"><h2>Admin Dashboard</h2></div>
+          </div>
+          <div id="admin-users">
+            <h3 class="text-md font-semibold mb-2">Users</h3>
+            <ul id="user-list" class="space-y-2"></ul>
+          </div>
+          <div id="admin-transactions" class="mt-4">
+            <h3 class="text-md font-semibold mb-2">All Transactions</h3>
+            <div id="all-transactions" class="space-y-2"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- BOTTOM APP NAVIGATION (Dynamically included from navbar.html) -->
+  <div id="app-nav"></div>
+
+  <!-- Shared Navbar Loader (no inline scripts) -->
+  <script src="/navbar-loader.js" defer></script>
+
+  <!-- IMPORTANT: Load your refactored JS file here -->
+  <script src="/portfolio.js" defer></script>

@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CryptoPro - Referral Program</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/referrals.js" defer></script>
+</head>
+<body class="referrals-page">
+  <div class="container">
+    <div class="header">
+      <h1>Referral Program</h1>
+      <p>Earn passive income by inviting friends to join CryptoPro and benefit from their mining activities. Start building your network today!</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h2>0</h2>
+        <p>Total Referrals</p>
+      </div>
+      <div class="stat-card">
+        <h2>0 KES</h2>
+        <p>Total Commission</p>
+      </div>
+    </div>
+    <div class="invitation-section">
+      <p>Your Unique Referral Link</p>
+      <div class="invitation-link-box">
+        <a href="https://www.cryptomarketsafrica.com/signup?invite_code=48357478">https://www.cryptomarketsafrica.com/signup?invite_code=48357478</a>
+        <button onclick="navigator.clipboard.writeText('https://www.cryptomarketsafrica.com/signup?invite_code=48357478')">Copy Link</button>
+      </div>
+      <div class="share-options">
+        <div class="share-option whatsapp" onclick="shareVia('whatsapp')">WhatsApp</div>
+        <div class="share-option telegram" onclick="shareVia('telegram')">Telegram</div>
+        <div class="share-option twitter" onclick="shareVia('twitter')">Twitter</div>
+        <div class="share-option facebook" onclick="shareVia('facebook')">Facebook</div>
+      </div>
+    </div>
+    <div class="commission-section">
+      <h2>Commission Structure</h2>
+      <div class="commission-table">
+        <div>Level</div>
+        <div>Description</div>
+        <div>Commission</div>
+        <div>1</div>
+        <div>Direct Referrals</div>
+        <div>10%</div>
+        <div>2</div>
+        <div>Friends of Friends</div>
+        <div>3%</div>
+        <div>3</div>
+        <div>Extended Network</div>
+        <div>1%</div>
+      </div>
+    </div>
+    <div class="redirect-section">
+      <button class="redirect-button" onclick="redirectTo('how-it-works')">How It Works <span class="float-right">→</span></button>
+    </div>
+    <div class="redirect-section">
+      <button class="redirect-button" onclick="redirectTo('your-referrals')">Your Referrals <span class="float-right">→</span></button>
+    </div>
+  </div>
+
+  <!-- BOTTOM APP NAVIGATION (Dynamically included from navbar.html) -->
+  <div id="app-nav"></div>
+
+  <!-- Shared Navbar Loader (no inline scripts) -->
+  <script src="/navbar-loader.js" defer></script>
+
+  <!-- IMPORTANT: Load your refactored JS file here -->
+  <script src="/referrals.js" defer></script>
+
+    function shareVia(platform) {
+      const url = 'https://www.cryptomarketsafrica.com/signup?invite_code=48357478';
+      let shareUrl;
+      switch (platform) {
+        case 'whatsapp':
+          shareUrl = `https://wa.me/?text=${encodeURIComponent('Join CryptoPro with my referral link: ' + url)}`;
+          break;
+        case 'telegram':
+          shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent('Check out CryptoPro!')}`;
+          break;
+        case 'twitter':
+          shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent('Join CryptoPro with my referral link: ' + url)}`;
+          break;
+        case 'facebook':
+          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+          break;
+      }
+      window.open(shareUrl, '_blank');
+    }
+  </script>
+</body>
+</html>

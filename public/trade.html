@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CryptoMiningPro - Trade</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=1.4">
+  <script src="/socket.io/socket.io.js" defer></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            app: {
+              bgDark: '#0B1221',     /* Main page background */
+              cardBg: '#151F32',     /* Featured card background */
+              cardBorder: '#2943A3', /* The distinct blue border on the card */
+              balanceBg: '#0A5B8C',  /* Solid dark teal for balance card */
+              btnDeposit: '#0EA5E9', /* Bright blue for deposit button */
+              textBlue: '#38BDF8',   /* Light blue text for KES numbers */
+              textMuted: '#475569',  /* Subdued text for header */
+              textGray: '#94A3B8'    /* Gray text for labels */
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #e2e8f0;
+      color: #ffffff;
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-24 overflow-x-hidden">
+
+  <!-- TOP HEADER -->
+  <header class="flex justify-between items-center px-4 sm:px-6 py-5">
+    <div class="text-[1.35rem] font-bold text-app-textMuted tracking-tight">Crypto Mining</div>
+    <div class="flex items-center gap-3">
+      <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 11.033c1.554-0.54 2.628-1.528 2.628-3.09 0-2.434-1.996-3.197-4.832-3.197h-4.041v14.51h4.48c3.155 0 5.257-0.954 5.257-3.504 0-1.89-1.303-3.003-3.492-3.35v-0.37h0.001zM11.69 7.155h1.28c1.332 0 2.115 0.384 2.115 1.455 0 1.056-0.783 1.424-2.115 1.424h-1.28v-2.879zM12.015 16.84h-1.605v-3.237h1.605c1.522 0 2.45 0.432 2.45 1.633 0 1.185-0.928 1.604-2.45 1.604z"/></svg>
+      <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 17.97L4.58 13.62 11.943 24l7.37-10.38-7.372 4.35h.003zM12.056 0L4.69 12.22l7.365 4.354 7.365-4.35L12.056 0z"/></svg>
+      <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 24c6.627 0 12-5.373 12-12S18.627 0 12 0 0 5.373 0 12s5.373 12 12 12zM12 4.5A7.5 7.5 0 114.5 12 7.5 7.5 0 0112 4.5z"/></svg>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-[1400px] mx-auto w-full">
+
+    <!-- 1. BALANCE SECTION (Exact Match) -->
+    <section class="px-4 sm:px-6">
+      <div class="bg-app-balance rounded-[1rem] p-5 shadow-lg border border-white/5">
+        <p class="text-sm text-gray-300/80 mb-2 font-medium">Total Available Balance</p>
+        <div class="flex items-end gap-1.5 mb-4">
+          <span class="text-lg font-bold text-gray-300/80 mb-[2px]">KES</span>
+          <h2 id="balance-amount" class="text-4xl sm:text-[2.5rem] font-bold text-white tracking-tight leading-none">0.00</h2>
+        </div>
+        <button id="deposit-btn" class="bg-app-btnDeposit hover:bg-sky-400 text-white text-sm font-semibold py-2 px-5 rounded-lg flex items-center gap-2 transition-colors w-fit">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2H2V5zm0 4h16v6a2 2 0 01-2 2H4a2 2 0 01-2-2V9zm11 2.5a.5.5 0 01.5-.5h2a.5.5 0 01.5.5v1a.5.5 0 01-.5.5h-2a.5.5 0 01-.5-.5v-1z"></path></svg>
+          Deposit
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. FEATURED CARD SECTION (Exact Match) -->
+    <section class="px-4 sm:px-6 mt-6">
+      <!-- Outer Card with distinct blue border and padding -->
+      <div class="bg-app-card rounded-[1rem] border-[1.5px] border-app-cardBorder p-4 shadow-2xl">
+        
+        <!-- Banner Image (Inset with rounded corners) -->
+        <div class="h-36 sm:h-48 w-full rounded-xl overflow-hidden mb-5">
+          <img src="/images/bitcoin-btc-logo.png" alt="Bitcoin" class="w-full h-full object-cover opacity-80 blur-[0.5px]">
+        </div>
+        
+        <!-- Title Row -->
+        <div class="flex items-center gap-3 mb-5 px-1">
+          <span class="bg-[#EF4444] text-white text-[10px] sm:text-[11px] font-bold px-2 py-1 rounded flex items-center gap-1 tracking-wide uppercase">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
+            FEATURED
+          </span>
+          <h3 class="text-xl sm:text-[1.4rem] font-extrabold text-white">Bitcoin</h3>
+        </div>
+
+        <!-- Stats Row (Dark nested container) -->
+        <div class="bg-app-bgDark rounded-xl p-4 sm:p-5 grid grid-cols-3 gap-2 mb-5">
+          <div class="flex flex-col">
+            <p class="text-app-textBlue font-bold text-[1.1rem] sm:text-xl">KES 2000</p>
+            <p class="text-app-textGray text-[10px] sm:text-xs mt-1 font-medium">Daily Yield</p>
+          </div>
+          <div class="flex flex-col items-center text-center">
+            <p class="text-app-textBlue font-bold text-[1.1rem] sm:text-xl">KES 12000</p>
+            <p class="text-app-textGray text-[10px] sm:text-xs mt-1 font-medium">Total Return</p>
+          </div>
+          <div class="flex flex-col items-end text-right">
+            <p class="text-app-textBlue font-bold text-[1.1rem] sm:text-xl">KES 5000</p>
+            <p class="text-app-textGray text-[10px] sm:text-xs mt-1 font-medium">Investment</p>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button data-action="mine" data-coin="BTC" data-price="5000" class="w-full bg-[#1D4ED8] hover:bg-blue-600 text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-colors">
+          START MINING NOW
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. DYNAMIC MARKETS GRID (Will be injected by trade.js) -->
+    <section class="px-4 sm:px-6 mt-10 mb-8">
+      <h2 class="text-lg font-semibold text-white mb-5">Available Markets</h2>
+      <div id="mining-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Cards injected by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Navbar Container (Managed by navbar.js) -->
+  <div id="app-nav"></div>
+
+  <!-- Scripts -->
+  <script src="/navbar-loader.js"></script>
+  <script src="/trade.js"></script>
+</body>
+</html>

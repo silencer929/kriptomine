@@ -1,0 +1,16 @@
+Options -Indexes
+DirectoryIndex index.html
+
+RewriteEngine On
+
+# Do not rewrite API calls
+RewriteCond %{REQUEST_URI} ^/api/ [NC]
+RewriteRule .* - [L]
+
+# If requested file exists, serve it
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule .* - [L]
+
+# Fallback to index.html for client side routing
+RewriteRule ^ /login.html [L]
+HT

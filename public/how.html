@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CryptoPro - How It Works</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0F1A2E 0%, #1A2A44 100%);
+      color: #E0E7FF;
+      font-family: 'Inter', sans-serif;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(224, 231, 255, 0.1);
+    }
+    .header h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+    .content {
+      background: rgba(15, 26, 46, 0.9);
+      border: 1px solid rgba(42, 47, 61, 0.5);
+      border-radius: 10px;
+      padding: 30px;
+      margin-top: 40px;
+    }
+    .content h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #FFFFFF;
+      margin-bottom: 20px;
+    }
+    .content p {
+      color: #A0AEC0;
+      line-height: 1.8;
+      margin-bottom: 15px;
+    }
+    .steps {
+      margin-top: 20px;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .step-number {
+      background: #00C4CC;
+      color: #0F1A2E;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 30px;
+      margin-right: 15px;
+      font-weight: 600;
+    }
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #1A2A44;
+      display: flex;
+      justify-content: space-around;
+      padding: 15px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+      z-index: 1001;
+    }
+    .nav-item {
+      color: #A0AEC0;
+      text-align: center;
+      flex: 1;
+      transition: color 0.3s ease;
+    }
+    .nav-item.active {
+      color: #00C4CC;
+      font-weight: 600;
+    }
+    .nav-item:hover {
+      color: #00C4CC;
+    }
+    .nav-item span {
+      display: block;
+      font-size: 1.5rem;
+    }
+    .nav-item .text {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>How It Works</h1>
+    </div>
+    <div class="content">
+      <h2>Understanding the CryptoPro Referral Program</h2>
+      <p>The CryptoPro Referral Program is designed to reward you for expanding our community. By inviting friends to join, you earn a percentage of their mining profits based on a tiered commission structure.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <p><strong>Generate Your Link:</strong> Access your unique referral link from the Referral Program page.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <p><strong>Share with Friends:</strong> Distribute the link via WhatsApp, Telegram, Twitter, or Facebook to invite others.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <p><strong>Earn Commissions:</strong> Once your referrals sign up and start mining, you’ll earn commissions credited daily to your account.</p>
+        </div>
+      </div>
+      <p>Commissions are transparent and tracked in real-time. Visit the "Your Referrals" page to monitor your network’s activity and earnings.</p>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <div class="nav-item" data-page="portfolio">
+      <span>📈</span>
+      <span class="text">Portfolio</span>
+    </div>
+    <div class="nav-item" data-page="trade">
+      <span>↔️</span>
+      <span class="text">Trade</span>
+    </div>
+    <div class="nav-item" data-page="history">
+      <span>↩️</span>
+      <span class="text">History</span>
+    </div>
+    <div class="nav-item" data-page="profits">
+      <span>💵</span>
+      <span class="text">Profits</span>
+    </div>
+    <div class="nav-item" data-page="referrals">
+      <span>👥</span>
+      <span class="text">Referrals</span>
+    </div>
+  </div>
+  <script src="/referrals.js" defer></script>
+</body>
+</html>

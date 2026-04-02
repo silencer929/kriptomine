@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CryptoMiningPro - Deposit</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/socket.io/socket.io.js" defer></script>
+  <script src="/deposit.js" defer></script>
+  <script src="/navbar-loader.js" defer></script>
+  <style>
+    .input-error {
+      box-shadow: 0 0 0 2px #EF4444 inset !important;
+    }
+    .btn-loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white font-inter min-h-screen flex flex-col">
+  <!-- BOTTOM APP NAVIGATION (Dynamically included from navbar.html) -->
+  <div id="app-nav"></div>
+
+  <!-- Main Content -->
+  <main class="flex-grow flex items-center justify-center px-4 py-8">
+    <div class="max-w-md w-full bg-gray-800 rounded-lg shadow-lg p-6 sm:p-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-center text-white mb-4">Deposit Funds</h1>
+      <p class="text-gray-400 text-sm text-center mb-6">Enter the amount you want to deposit. Minimum deposit is KES 300.</p>
+
+      <div class="space-y-4">
+        <div>
+          <label for="amount" class="block text-sm font-medium text-gray-300 mb-2">Amount (KES)</label>
+          <input
+            id="amount"
+            type="number"
+            min="300"
+            step="1"
+            placeholder="Enter amount (min 300)"
+            class="w-full bg-gray-700 text-white text-base px-4 py-2 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-describedby="amount-error"
+            required
+          />
+          <p id="amount-error" class="text-red-500 text-xs mt-1 hidden"></p>
+        </div>
+
+        <div>
+          <label for="phone" class="block text-sm font-medium text-gray-300 mb-2">Phone number</label>
+          <input
+            id="phone"
+            type="tel"
+            inputmode="tel"
+            placeholder="07XXXXXXXX or +2547XXXXXXXX"
+            class="w-full bg-gray-700 text-white text-base px-4 py-2 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-describedby="phone-error"
+            required
+          />
+          <p id="phone-error" class="text-red-500 text-xs mt-1 hidden"></p>
+        </div>
+
+        <button
+          id="continue-btn"
+          class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center"
+          disabled
+        >
+          <span id="btn-text">Proceed to Payment</span>
+          <svg id="btn-spinner" class="hidden animate-spin h-5 w-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="mt-6 text-gray-400 text-sm">
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Deposits are processed instantly via mobile money</li>
+          <li>Use deposited funds to purchase mining packages</li>
+          <li>All transactions are secure and encrypted</li>
+        </ul>
+      </div>
+
+      <div id="status-message" class="text-sm mt-4 text-center hidden"></div>
+      <div id="error-message" class="text-red-500 text-sm mt-4 text-center hidden"></div>
+    </div>
+  </main>
+
+  <!-- BOTTOM APP NAVIGATION (Dynamically included from navbar.html) -->
+  <div id="app-nav"></div>
+
+  <!-- Shared Navbar Loader (no inline scripts) -->
+  <script src="/navbar-loader.js" defer></script>
+
+  <!-- IMPORTANT: Load your refactored JS file here -->
+  <script src="/deposit.js" defer></script>
+</body>
+</html>

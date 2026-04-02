@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KriptoMine Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./public/styles.css">
+  
+  <style>
+    body { 
+      background-color: #0f172a; /* Deep Slate Background */
+      color: #e2e8f0; 
+      font-family: 'Inter', sans-serif; 
+    }
+    
+    /* App Dashboard Styles */
+    .nav-fixed { position: fixed; bottom: 0; width: 100%; background: #1e293b; padding: 12px 0; border-top: 1px solid #334155; }
+    .nav-item { color: #94a3b8; text-align: center; font-size: 0.875rem; transition: color 0.2s; }
+    .nav-item:hover { color: #3b82f6; }
+    .nav-item.active { color: #3b82f6; font-weight: 600; }
+    .gradient-bg { background: #1e293b; border-bottom: 1px solid #334155; }
+    .chart-container { position: relative; height: 200px; width: 100%; margin-top: 10px; }
+    .notification { position: fixed; top: 80px; right: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 8px; display: none; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    
+    /* Custom Input Wrapper to perfectly align icons inside */
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .input-icon {
+      position: absolute;
+      left: 16px;
+      color: #64748b; /* Slate 500 */
+      font-size: 1.1rem;
+      pointer-events: none; /* So clicks pass through to the input */
+    }
+    .input-field { 
+      background-color: #eef2ff; /* Light bluish-white */
+      color: #0f172a; 
+      width: 100%;
+      border-radius: 0.75rem;
+      padding: 14px 16px 14px 48px; /* Extra left padding for the icon */
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .input-field:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #3b82f6;
+    }
+    .input-field::placeholder { color: #94a3b8; font-weight: 400; }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="login-page">
+
+  <!-- =============================== -->
+  <!-- LOGIN VIEW -->
+  <!-- =============================== -->
+  <div id="login-view" class="login-shell">
+    <div class="login-frame">
+      <div class="brand-row">
+        <span class="brand-badge">
+          <img src="./public/images/bitcoin-btc-logo.png" alt="Kripto Mine logo" class="brand-logo-image">
+        </span>
+        <div>
+          <h1 class="brand-title">Kripto Mine</h1>
+        </div>
+      </div>
+      <p class="brand-subtitle">Fast, secure access to your dashboard, mining rewards, and wallet activity.</p>
+
+      <section class="login-auth-card" aria-labelledby="demoLoginTitle">
+        <div class="login-card-header">
+          <h2 id="demoLoginTitle" class="login-heading">Welcome Back</h2>
+          <p class="login-copy">Login to continue to your investment dashboard</p>
+          <div class="coin-row" aria-hidden="true">
+            <div class="coin-badge"><i class="fa-brands fa-bitcoin text-yellow-400"></i></div>
+            <div class="coin-badge"><i class="fa-brands fa-ethereum text-indigo-300"></i></div>
+            <div class="coin-badge"><i class="fa-solid fa-coins text-blue-400"></i></div>
+            <div class="coin-badge"><i class="fa-solid fa-chart-line text-slate-200"></i></div>
+          </div>
+        </div>
+
+        <div class="login-card-body">
+          <div class="field-stack">
+            <div class="field-shell">
+              <span class="field-icon" aria-hidden="true">✉️</span>
+              <input type="email" id="email" class="input-field" placeholder="Email Address" value="petermbugua929@gmail.com">
+            </div>
+
+            <div class="field-shell">
+              <span class="field-icon" aria-hidden="true">🔒</span>
+              <input type="password" id="password" class="input-field tracking-widest" placeholder="Password" value="••••••••••">
+            </div>
+
+            <div class="flex justify-end mt-1 mb-2">
+              <a href="#" class="forgot-btn text-sm">Forgot password?</a>
+            </div>
+
+            <button onclick="handleLogin()" class="login-submit" type="button">
+              <span>Login to Dashboard</span>
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+
+          <div class="helper-card">
+            <span class="helper-icon" aria-hidden="true">💡</span>
+            <p class="m-0 text-sm leading-6">A cleaner login gives users more trust and makes the first experience feel more premium.</p>
+          </div>
+        </div>
+
+        <div class="signup-meta">
+          <p class="m-0">Don’t have an account? <a href="./public/signup.html">Sign Up</a></p>
+          <div class="helpline">24/7 Helpline</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+
+  <!-- =============================== -->
+  <!-- MAIN APP DASHBOARD (Hidden) -->
+  <!-- =============================== -->
+  <div id="app-view" class="hidden min-h-screen flex-col">
+    <!-- Navbar -->
+    <nav class="gradient-bg p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-50 shadow-md">
+      <div class="flex items-center space-x-2">
+        <div class="bg-[#38bdf8] text-[#0f172a] rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs"><i class="fa-brands fa-bitcoin"></i></div>
+        <h1 class="text-lg font-bold text-white">Kripto Mine</h1>
+      </div>
+      <div id="userInfo" class="text-sm font-medium text-slate-300"></div>
+    </nav>
+    
+    <div id="notification" class="notification"></div>
+    
+    <!-- Main Content Area -->
+    <main class="flex-grow pt-20 pb-20 px-4 max-w-3xl mx-auto w-full">
+      <div id="content" class="bg-[#1e293b] rounded-xl p-6 shadow-lg border border-slate-800"></div>
+    </main>
+    
+    <!-- Bottom Navigation -->
+    <nav class="nav-fixed flex justify-around shadow-lg">
+      <a href="#" class="nav-item flex flex-col items-center gap-1" onclick="loadPage('dashboard')"><i class="fa-solid fa-house"></i><span>Home</span></a>
+      <a href="#" class="nav-item flex flex-col items-center gap-1" onclick="loadPage('portfolio')"><i class="fa-solid fa-wallet"></i><span>Wallet</span></a>
+      <a href="#" class="nav-item flex flex-col items-center gap-1" onclick="loadPage('trade')"><i class="fa-solid fa-chart-line"></i><span>Trade</span></a>
+      <a href="#" class="nav-item flex flex-col items-center gap-1" onclick="loadPage('mining')"><i class="fa-solid fa-hammer"></i><span>Mining</span></a>
+      <a href="#" class="nav-item flex flex-col items-center gap-1" onclick="loadPage('referrals')"><i class="fa-solid fa-users"></i><span>Refer</span></a>
+    </nav>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let chartInstance = null;
+
+    // Transition from Login to Dashboard
+    async function handleLogin() {
+      // Button animation feedback
+      const btn = document.querySelector('button');
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
+
+      // Simulate a network request
+      setTimeout(async () => {
+        try {
+          const response = await axios.post('http://localhost:3000/login', { username: 'cmpuser1', password: 'pass' });
+          if (response.data.success) {
+            setupApp(response.data.user);
+          } else {
+            alert('Login failed');
+            btn.innerHTML = '<i class="fa-solid fa-arrow-right text-lg"></i>';
+          }
+        } catch (error) {
+          // FALLBACK: If local server isn't running, mock the login
+          setupApp({ username: 'petermbugua', isAdmin: false, balance: 12500.50 });
+        }
+      }, 800);
+    }
+
+    function setupApp(user) {
+      currentUser = user;
+      document.getElementById('login-view').classList.add('hidden');
+      document.getElementById('app-view').classList.remove('hidden');
+      document.getElementById('app-view').classList.add('flex');
+      document.getElementById('userInfo').textContent = `Hi, ${currentUser.username.split('@')[0]} | KES ${currentUser.balance.toFixed(2)}`;
+      loadPage('dashboard');
+      showNotification('Logged in successfully! Welcome back.');
+    }
+
+    function loadPage(page) {
+      const content = document.getElementById('content');
+      content.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-3xl text-blue-500"></i></div>';
+      
+      setTimeout(() => {
+        if (page === 'dashboard') {
+          content.innerHTML = `
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold text-white">Dashboard</h2>
+              <span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded border border-green-500/30 flex items-center gap-1"><i class="fa-solid fa-circle text-[8px]"></i> LIVE</span>
+            </div>
+            <div class="bg-[#0f172a] p-5 rounded-lg border border-slate-700 mb-6">
+              <p class="text-slate-400 text-sm mb-1">Available Balance</p>
+              <h3 class="text-3xl font-bold text-white">KES ${currentUser.balance.toFixed(2)}</h3>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <button class="bg-[#3b82f6] hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2" onclick="loadPage('deposit')"><i class="fa-solid fa-arrow-down"></i> Deposit</button>
+              <button class="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2" onclick="loadPage('withdraw')"><i class="fa-solid fa-arrow-up"></i> Withdraw</button>
+            </div>
+          `;
+        } else if (page === 'trade') {
+          content.innerHTML = `
+            <h2 class="text-2xl font-bold text-white mb-6">Market Overview</h2>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+              <div class="bg-[#0f172a] p-3 rounded-lg border border-slate-700"><div class="text-sm text-slate-400">BTC</div><div class="font-bold text-green-400">$60,000 <i class="fa-solid fa-caret-up"></i></div></div>
+              <div class="bg-[#0f172a] p-3 rounded-lg border border-slate-700"><div class="text-sm text-slate-400">ETH</div><div class="font-bold text-green-400">$3,000 <i class="fa-solid fa-caret-up"></i></div></div>
+              <div class="bg-[#0f172a] p-3 rounded-lg border border-slate-700"><div class="text-sm text-slate-400">XRP</div><div class="font-bold text-red-400">$0.50 <i class="fa-solid fa-caret-down"></i></div></div>
+              <div class="bg-[#0f172a] p-3 rounded-lg border border-slate-700"><div class="text-sm text-slate-400">DOGE</div><div class="font-bold text-green-400">$0.20 <i class="fa-solid fa-caret-up"></i></div></div>
+            </div>
+            <div class="chart-container"><canvas id="priceChart"></canvas></div>
+          `;
+          if (chartInstance) chartInstance.destroy();
+          const ctx = document.getElementById('priceChart').getContext('2d');
+          chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels:['Aug 1', 'Aug 3', 'Aug 5', 'Aug 7', 'Aug 9'],
+              datasets:[{
+                label: 'BTC/USD',
+                data:[58000, 58500, 59000, 59500, 60000],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+              }]
+            },
+            options: { 
+              responsive: true, maintainAspectRatio: false,
+              plugins: { legend: { labels: { color: '#94a3b8' } } },
+              scales: { 
+                x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
+              } 
+            }
+          });
+        }
+        else {
+           content.innerHTML = `<h2 class="text-xl font-bold text-white">${page.charAt(0).toUpperCase() + page.slice(1)} View</h2><p class="text-slate-400 mt-2">Section content loaded.</p>`;
+        }
+      }, 300);
+    }
+
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i>${message}`;
+      notification.style.display = 'block';
+      setTimeout(() => notification.style.display = 'none', 3000);
+    }
+  </script>
+</body>
+</html>

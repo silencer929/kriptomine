@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kripto Mine - No Active Mining</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .btn-gradient {
+      background: linear-gradient(90deg, #3B82F6, #A855F7);
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+    .btn-gradient:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(90deg, #60A5FA, #C084FC);
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white font-inter min-h-screen flex flex-col">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex-grow flex items-center justify-center">
+    <div class="w-full max-w-md bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
+      <h1 class="text-3xl font-bold mb-6">No Active Mining</h1>
+      <p class="text-lg text-gray-400 mb-6">You have no active mining operations.</p>
+      <button 
+        id="startMiningBtn" 
+        class="btn-gradient text-white text-lg font-semibold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        onclick="window.location.href='/trade.html'"
+      >
+        Start Mining
+      </button>
+    </div>
+  </div>
+  <script>
+    // Debug Start Mining button on no-mining.html
+    document.getElementById('startMiningBtn').addEventListener('click', () => {
+      console.log('Start Mining button clicked on no-mining.html, redirecting to /trade.html');
+      window.location.href = '/trade.html';
+    });
+  </script>
+</body>
+</html>
