@@ -24,7 +24,7 @@ const TradeApp = (() => {
     {
       name: "Bitcoin",
       symbol: "BTC",
-      img: "/images/bitcoin-btc-logo.png",
+      img: "/images/bitcoin-new-logo.png",
       period: "6 days",
       stock: "3 units",
       daily: 2000,
@@ -46,15 +46,15 @@ const TradeApp = (() => {
       symbol: "SOL",
       img: "/images/solana-sol-logo.png",
       period: "90 days",
-      stock: "1 units",
+      stock: "20 units",
       daily: 70,
       return: 6300,
       price: 3000
     },
     {
-      name: "Solona",
+      name: "Doge Coin",
       symbol: "SOL",
-      img: "/images/solana-sol-logo.png",
+      img: "/images/dogecoin-doge-logo.png",
       period: "60 days",
       stock: "2 units",
       daily: 300,
@@ -62,24 +62,44 @@ const TradeApp = (() => {
       price: 8000
     },
     {
-      name: "Solona Coin",
-      symbol: "SOL",
-      img: "/images/solana-sol-logo.png",
-      period: "90 days",
-      stock: "1 units",
-      daily: 70,
-      return: 6300,
-      price: 3000
+      name: "BNB Coin",
+      symbol: "BNB",
+      img: "/images/bnb-coin-logo.png",
+      period: "1200 days",
+      stock: "5 units",
+      daily: 1200,
+      return: 37000,
+      price: 15000
     },
     {
-      name: "Solona",
-      symbol: "SOL",
-      img: "/images/solana-sol-logo.png",
-      period: "60 days",
-      stock: "2 units",
-      daily: 300,
-      return: 18000,
-      price: 8000
+      name: "Ethereum",
+      symbol: "EHT",
+      img: "/images/ethereum-eth-logo.png",
+      period: " 10 days",
+      stock: "10 units",
+      daily: 1200,
+      return: 120000,
+      price: 5000
+    },
+      {
+      name: "Tether",
+      symbol: "USDT",
+      img: "/images/tether-usdt-logo.png",
+      period: " 20 days",
+      stock: "8 units",
+      daily: 3200,
+      return: 64000,
+      price: 30000
+    },
+       {
+      name: "LitCcoin",
+      symbol: "LTC",
+      img: "/images/litecoin-ltc-logo.png",
+      period: " 6 days",
+      stock: "100 units",
+      daily: 6000,
+      return: 36000,
+      price: 10000
     }
   ];
 

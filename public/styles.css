@@ -255,18 +255,22 @@ button:active::before {
   background: var(--hover-gradient);
 }
 
-.section, .mining-grid, .crypto-card {
-  background: var(--card-bg);
-  backdrop-filter: blur(12px);
+.section, .mining-grid, .crypto-card,
+.bg-app-card, .bg-app-balance, .bg-app-bgDark {
+  background: linear-gradient(135deg, rgba(26, 43, 75, 0.95), rgba(12, 20, 38, 0.92));
+  border: 1px solid rgba(96, 165, 250, 0.24);
+  backdrop-filter: blur(14px);
   border-radius: 16px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.42);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.section:hover, .mining-grid:hover, .crypto-card:hover {
+.section:hover, .mining-grid:hover, .crypto-card:hover,
+.bg-app-card:hover, .bg-app-balance:hover, .bg-app-bgDark:hover {
   transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55);
 }
 
 /* Portfolio asset strip - horizontal scroll and responsive cards */
