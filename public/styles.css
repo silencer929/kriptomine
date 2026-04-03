@@ -269,6 +269,102 @@ button:active::before {
   transform: translateY(-4px);
 }
 
+/* Portfolio asset strip - horizontal scroll and responsive cards */
+.asset-strip {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0.75rem 0;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.asset-strip::-webkit-scrollbar {
+  height: 8px;
+}
+
+.asset-strip::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.asset-strip::-webkit-scrollbar-thumb {
+  background: rgba(147, 197, 253, 0.75);
+  border-radius: 999px;
+}
+
+.asset-summary-card {
+  flex: 0 0 145px;
+  min-width: 145px;
+  max-width: 190px;
+  width: 22%;
+  scroll-snap-align: start;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.asset-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
+}
+
+.asset-summary-card.active-asset {
+  border: 2px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+@media (max-width: 1024px) {
+  .asset-summary-card {
+    flex: 0 0 130px;
+    min-width: 130px;
+    max-width: 150px;
+    width: 30%;
+    padding: 0.8rem;
+  }
+
+  .asset-summary-card .asset-top .coin-image {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .asset-summary-card .asset-symbol {
+    font-size: 0.88rem;
+  }
+
+  .asset-summary-card .asset-price,
+  .asset-summary-card .percentage {
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .asset-summary-card {
+    flex: 0 0 120px;
+    min-width: 120px;
+    max-width: 140px;
+    width: 35%;
+    padding: 0.65rem;
+  }
+
+  .asset-summary-card .asset-top .coin-image {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+
+  .asset-summary-card .asset-symbol {
+    font-size: 0.78rem;
+  }
+
+  .asset-summary-card .asset-price,
+  .asset-summary-card .percentage {
+    font-size: 0.71rem;
+  }
+}
+
+
 .withdraw-section {
   background: var(--card-bg);
   backdrop-filter: blur(12px);
@@ -1830,16 +1926,41 @@ body.portfolio-page .tiny-coin {
 }
 
 body.portfolio-page .asset-strip {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 14px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0.75rem 0;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  white-space: nowrap;
 }
 
 body.portfolio-page .asset-summary-card {
-  padding: 16px;
+  flex: 0 0 135px;
+  min-width: 135px;
+  max-width: 180px;
+  margin: 0;
+  padding: 14px;
   border-radius: 18px;
   border: 1px solid rgba(96, 165, 250, 0.12);
-  min-height: 116px;
+  min-height: 112px;
+  scroll-snap-align: start;
+}
+
+body.portfolio-page .asset-strip::-webkit-scrollbar {
+  height: 8px;
+}
+
+body.portfolio-page .asset-strip::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.portfolio-page .asset-strip::-webkit-scrollbar-thumb {
+  background: rgba(147, 197, 253, 0.75);
+  border-radius: 999px;
 }
 
 body.portfolio-page .active-asset {
@@ -2215,13 +2336,16 @@ body.portfolio-page .animate-slide-in {
   }
 
   body.portfolio-page .asset-strip {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(92px, 1fr);
-    overflow-x: auto;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
     gap: 8px;
+    overflow-x: auto;
     padding-bottom: 4px;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    white-space: nowrap;
   }
 
   body.portfolio-page .asset-strip::-webkit-scrollbar {

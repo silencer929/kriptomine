@@ -467,17 +467,44 @@ function setActiveNavItem() {
 }
 // Fix transaction slideshow
 const transactionData = [
-  { coin: 'DOGE', reference: '25****582', amount: 'KES 174,463', time: 'Just now' },
-  { coin: 'BTC', reference: '12****345', amount: 'KES 1,234,567', time: 'Just now' },
-  { coin: 'ETH', reference: '34****678', amount: 'KES 456,789', time: 'Just now' },
-  { coin: 'XRP', reference: '56****901', amount: 'KES 12,345', time: 'Just now' },
-  { coin: 'LTC', reference: '78****123', amount: 'KES 197,731', time: 'Just now' },
-  { coin: 'USDT', reference: '90****456', amount: 'KES 130,000', time: 'Just now' }
+  { coin: 'DOGE', reference: '25****582', amount: 174463, type: 'Deposit', time: 'Just now' },
+  { coin: 'BTC', reference: '12****345', amount: 1234567, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'ETH', reference: '34****678', amount: 456789, type: 'Deposit', time: 'Just now' },
+  { coin: 'XRP', reference: '56****901', amount: 12345, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'LTC', reference: '78****123', amount: 197731, type: 'Deposit', time: 'Just now' },
+  { coin: 'USDT', reference: '90****456', amount: 130000, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'BTC', reference: '45****789', amount: 850000, type: 'Deposit', time: 'Just now' },
+  { coin: 'ETH', reference: '23****456', amount: 320000, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'DOGE', reference: '67****890', amount: 245000, type: 'Deposit', time: 'Just now' },
+  { coin: 'XRP', reference: '34****567', amount: 89000, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'LTC', reference: '12****340', amount: 502000, type: 'Deposit', time: 'Just now' },
+  { coin: 'USDT', reference: '56****789', amount: 175000, type: 'Deposit', time: 'Just now' },
+  { coin: 'BTC', reference: '89****012', amount: 1100000, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'ETH', reference: '11****234', amount: 678000, type: 'Deposit', time: 'Just now' },
+  { coin: 'DOGE', reference: '99****876', amount: 125000, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'XRP', reference: '22****555', amount: 54000, type: 'Deposit', time: 'Just now' },
+  { coin: 'LTC', reference: '33****666', amount: 289000, type: 'Deposit', time: 'Just now' },
+  { coin: 'USDT', reference: '44****777', amount: 95000, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'BTC', reference: '77****888', amount: 950000, type: 'Deposit', time: 'Just now' },
+  { coin: 'ETH', reference: '55****333', amount: 412000, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'DOGE', reference: '88****999', amount: 356000, type: 'Deposit', time: 'Just now' },
+  { coin: 'XRP', reference: '11****999', amount: 76000, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'LTC', reference: '22****888', amount: 415000, type: 'Deposit', time: 'Just now' },
+  { coin: 'USDT', reference: '33****777', amount: 204000, type: 'Deposit', time: 'Just now' },
+  { coin: 'BTC', reference: '66****555', amount: 780000, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'ETH', reference: '99****111', amount: 523000, type: 'Deposit', time: 'Just now' },
+  { coin: 'DOGE', reference: '44****222', amount: 189000, type: 'Withdrawal', time: 'Just now' },
+  { coin: 'XRP', reference: '77****000', amount: 65000, type: 'Deposit', time: 'Just now' },
+  { coin: 'LTC', reference: '55****111', amount: 328000, type: 'Deposit', time: 'Just now' },
+  { coin: 'USDT', reference: '88****444', amount: 142000, type: 'Withdrawal', time: 'Just now' }
 ];
 let currentTransactionIndex = 0;
+const INITIAL_MARKET_VOLUME = 82300000; // Initial volume: KES 82.30M
+let totalMarketVolume = INITIAL_MARKET_VOLUME;
 async function updateTransaction() {
   console.log('Updating transaction slideshow at', new Date().toLocaleString('en-US', { timeZone: 'Africa/Nairobi' }));
   const transactionList = document.getElementById('transaction-list');
+  const marketVolumeElement = document.getElementById('market-volume');
   if (!transactionList) {
     console.error('Transaction list element (#transaction-list) not found');
     return;
@@ -493,9 +520,42 @@ async function updateTransaction() {
   const coin = coins[currentTransactionIndex % coins.length];
   const coinInfo = coinData[coin.id];
   const sampleTransaction = transactionData.find(t => t.coin === coin.symbol) || transactionData[0];
+  const transactionType = sampleTransaction.type || 'Deposit';
+  const transactionAmount = sampleTransaction.amount || 0;
+  
+  // Update market volume based on transaction type
+  if (transactionType === 'Deposit') {
+    totalMarketVolume += transactionAmount;
+  } else {
+    totalMarketVolume -= transactionAmount;
+  }
+  totalMarketVolume = Math.max(0, totalMarketVolume); // Ensure volume doesn't go negative
+  
+  // Format market volume
+  const formatVolume = (volume) => {
+    if (volume >= 1000000) {
+      return (volume / 1000000).toFixed(2) + 'M';
+    } else if (volume >= 1000) {
+      return (volume / 1000).toFixed(2) + 'K';
+    }
+    return volume.toFixed(2);
+  };
+  
+  // Update volume display
+  if (marketVolumeElement) {
+    marketVolumeElement.textContent = `Volume: KES ${formatVolume(totalMarketVolume)}`;
+  }
+  
   const usdToKesRate = 129; // Sample conversion rate (USD to KES)
   const kesValue = (coinInfo.price * usdToKesRate).toFixed(2);
   const change = coinInfo.change_24h.toFixed(2);
+  
+  // Determine badge and amount color based on transaction type
+  const badgeBgColor = transactionType === 'Deposit' ? 'rgba(22, 224, 160, 0.12)' : 'rgba(239, 68, 68, 0.12)';
+  const badgeTextColor = transactionType === 'Deposit' ? '#16e0a0' : '#ef4444';
+  const amountColor = transactionType === 'Deposit' ? '#16e0a0' : '#ef4444';
+  const amountPrefix = transactionType === 'Deposit' ? '+' : '-';
+  
   transactionList.innerHTML = `
     <div class="transaction-row transaction-card-inner animate-slide-in">
       <div class="transaction-asset">
@@ -503,17 +563,17 @@ async function updateTransaction() {
         <div>
           <div class="transaction-symbol">${coin.symbol}</div>
           <div class="transaction-reference">${sampleTransaction.reference}</div>
-          <span class="transaction-badge">Deposit</span>
+          <span class="transaction-badge" style="background: ${badgeBgColor}; color: ${badgeTextColor};">${transactionType}</span>
         </div>
       </div>
       <div class="amount-info">
-        <span class="transaction-kes">${sampleTransaction.amount || `KES ${kesValue}`}</span>
+        <span class="transaction-kes" style="color: ${amountColor};">${amountPrefix}KES ${transactionAmount.toLocaleString('en-US')}</span>
         <span class="percentage text-sm ${change > 0 ? 'text-green-500' : 'text-red-500'}">${change > 0 ? '+' : ''}${change}%</span>
         <span class="transaction-time">${sampleTransaction.time}</span>
       </div>
     </div>
   `;
-  console.log(`Displayed ${coin.name}: $${coinInfo.price}, ${change}%, KES ${kesValue}, Logo: ${coin.logo}`);
+  console.log(`Displayed ${coin.name}: ${transactionType} ${transactionAmount} KES, ${change}%, Logo: ${coin.logo}`);
   currentTransactionIndex = (currentTransactionIndex + 1) % coins.length;
 }
 let currentCoin = 'bitcoin';
@@ -682,8 +742,22 @@ function changeCoin(coinId, symbol, event) {
   currentCoin = coinId;
   currentCoinSymbol = symbol;
   updateChart();
-  document.querySelectorAll('.coin-button').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
+
+  document.querySelectorAll('.coin-button').forEach(btn => {
+    btn.classList.toggle('active', (btn.getAttribute('data-symbol') || btn.textContent.trim()) === symbol);
+  });
+
+  document.querySelectorAll('.asset-summary-card').forEach(card => {
+    const cardSymbol = card.querySelector('.asset-symbol')?.textContent.trim();
+    card.classList.toggle('active-asset', cardSymbol === symbol);
+  });
+
+  if (event && event.target) {
+    const target = event.target;
+    if (target.classList.contains('coin-button')) {
+      target.classList.add('active');
+    }
+  }
 }
 function openDeposit() {
   console.log('Navigating to /deposit.html at', new Date().toLocaleString('en-US', { timeZone: 'Africa/Nairobi' }));
@@ -760,6 +834,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if ((button.getAttribute('data-symbol') || button.textContent.trim()) === currentCoinSymbol) {
       button.classList.add('active');
+    }
+  });
+
+  document.querySelectorAll('.asset-strip .asset-summary-card').forEach(card => {
+    card.addEventListener('click', (event) => {
+      const symbol = card.querySelector('.asset-symbol')?.textContent.trim();
+      if (!symbol) return;
+      const coin = coinButtons[symbol];
+      if (!coin) return;
+      changeCoin(coin[0], coin[1], event);
+    });
+
+    const cardSymbol = card.querySelector('.asset-symbol')?.textContent.trim();
+    if (cardSymbol === currentCoinSymbol) {
+      card.classList.add('active-asset');
     }
   });
 
