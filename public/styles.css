@@ -1602,10 +1602,8 @@ body.portfolio-page {
   --portfolio-border: rgba(96, 165, 250, 0.14);
   --portfolio-blue: #38bdf8;
   --portfolio-green: #16e0a0;
-  background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.22), transparent 0 32%),
-    linear-gradient(135deg, #030a18 0%, #07142e 40%, #041128 100%);
-  color: #f8fafc;
+  background: var(--background-dark);
+  color: #f1f5f9;
   min-height: 100vh;
   padding-bottom: 92px;
 }
