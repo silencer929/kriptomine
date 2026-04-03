@@ -92,7 +92,98 @@
     </section>
 
   </main>
+    <!-- ========================================== -->
+  <!-- MODALS PORTION -->
+  <!-- ========================================== -->
 
+  <!-- Shared Dark Backdrop -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden transition-opacity duration-300 opacity-0"></div>
+
+    <!-- STEP 1: QUANTITY SELECTION MODAL (Matches your image) -->
+    <div id="quantity-modal" class="rounded-xl z-[101] hidden flex-col transition-all duration-300 scale-95 opacity-0">
+      <!-- Header -->
+      <div class="flex justify-between items-center p-5 border-b border-white/5">
+        <h3 class="text-lg font-bold text-white">Start Mining</h3>
+        <button id="close-qty-modal" class="text-gray-400 hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      
+      <!-- Body -->
+      <div class="p-5">
+        <h4 id="modal-coin-name" class="text-[1.35rem] font-bold text-white mb-5">Ripple XRP</h4>
+        
+        <p class="text-sm text-gray-400 mb-2">Select quantity:</p>
+        <!-- Quantity Selector (Blue Box) -->
+        <div class="flex items-center justify-between bg-app-btnDeposit rounded-lg p-1 mb-6 border border-sky-400/50 shadow-inner">
+          <button id="qty-minus" class="w-12 h-10 flex items-center justify-center text-white font-bold text-2xl hover:bg-black/10 rounded-md transition">-</button>
+          <input type="number" id="qty-input" value="1" min="1" readonly class="bg-transparent text-white text-center font-bold text-lg w-full outline-none pointer-events-none">
+          <button id="qty-plus" class="w-12 h-10 flex items-center justify-center text-white font-bold text-xl hover:bg-black/10 rounded-md transition">+</button>
+        </div>
+
+        <!-- Stats List -->
+        <div class="space-y-4 text-sm">
+          <div class="flex justify-between border-b border-white/5 pb-3">
+            <span class="text-gray-400">Daily Yield</span>
+            <span id="modal-daily" class="font-bold text-white">KES 0</span>
+          </div>
+          <div class="flex justify-between border-b border-white/5 pb-3">
+            <span class="text-gray-400">Total Return</span>
+            <span id="modal-return" class="font-bold text-white">KES 0</span>
+          </div>
+          <div class="flex justify-between border-b border-white/5 pb-3">
+            <span class="text-gray-400">Available Stock</span>
+            <span id="modal-stock" class="font-bold text-white">0 units</span>
+          </div>
+          <div class="flex justify-between pb-1">
+            <span class="text-gray-400">Total Investment</span>
+            <span id="modal-investment" class="font-bold text-app-textBlue text-base">KES 0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-5 pt-2">
+        <button id="btn-proceed-payment" class="w-full bg-app-btnDeposit hover:bg-sky-400 text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-colors">
+          CONFIRM MINING OPERATION
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: PAYMENT CONFIRMATION MODAL -->
+      <div id="mpesa-modal" class="rounded-xl z-[101] hidden flex-col transition-all duration-300 scale-95 opacity-0">
+        <div class="p-6 text-center">
+          <div class="w-16 h-16 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/30">
+            <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-1">Insufficient Balance</h3>
+          <p class="text-sm text-gray-400 mb-5">Pay directly via M-Pesa to fund this contract.</p>
+
+          <div class="bg-[#0B1221] rounded-lg p-4 text-left mb-4 border border-white/5 space-y-4">
+            <div>
+              <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Amount Required</p>
+              <p id="mpesa-amount" class="text-2xl font-bold text-app-textBlue">KES 0</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">M-Pesa Phone Number</p>
+              <input type="text" id="mpesa-phone" class="w-full bg-transparent text-white font-medium border-b border-white/10 pb-2 outline-none focus:border-app-btnDeposit" placeholder="07XXXXXXXX">
+            </div>
+          </div>
+
+          <div id="mpesa-status" class="hidden text-teal-400 text-sm mb-4"></div>
+          <div id="mpesa-error" class="hidden text-red-500 text-sm mb-4"></div>
+
+          <div class="flex gap-3">
+            <button id="btn-cancel-mpesa" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg text-sm transition-colors">
+              Cancel
+            </button>
+            <button id="btn-pay-mpesa" class="flex-1 bg-[#10B981] hover:bg-green-500 text-white font-bold py-3 rounded-lg text-sm transition-colors flex justify-center items-center gap-2">
+              <span id="btn-pay-mpesa-text">Pay Now</span>
+              <svg id="btn-pay-mpesa-spinner" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </button>
+          </div>
+        </div>
+      </div>
   <!-- Navbar Container (Managed by navbar.js) -->
   <div id="app-nav"></div>
 
