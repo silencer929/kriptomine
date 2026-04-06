@@ -19,14 +19,29 @@ const TradeApp = (() => {
   };
 
   const MARKET_DATA = [
-    { name: "Bitcoin", symbol: "BTC", img: "/images/bitcoin-new-logo.png", period: "6 days", stock: 3, daily: 2000, return: 12000, price: 5000 },
-    { name: "Ripple XRP", symbol: "XRP", img: "/images/xrp-xrp-logo.png", period: "2 days", stock: 1, daily: 150, return: 300, price: 250 },
-    { name: "Solona Coin", symbol: "SOL", img: "/images/solana-sol-logo.png", period: "90 days", stock: 20, daily: 70, return: 6300, price: 1200 },
-    { name: "Doge Coin", symbol: "DOGE", img: "/images/dogecoin-doge-logo.png", period: "60 days", stock: 2, daily: 300, return: 18000, price: 8000 },
-    { name: "BNB Coin", symbol: "BNB", img: "/images/bnb-coin-logo.png", period: "1200 days", stock: 5, daily: 1200, return: 37000, price: 15000 },
-    { name: "Ethereum", symbol: "ETH", img: "/images/ethereum-eth-logo.png", period: "10 days", stock: 10, daily: 1200, return: 120000, price: 5000 },
-    { name: "Tether", symbol: "USDT", img: "/images/tether-usdt-logo.png", period: "20 days", stock: 8, daily: 3200, return: 64000, price: 30000 },
-    { name: "LiteCoin", symbol: "LTC", img: "/images/litecoin-ltc-logo.png", period: "6 days", stock: 100, daily: 6000, return: 36000, price: 10000 }
+    // 4 Hours - Ultra Fast Bait (Price: 250 | Return: 400)
+    { name: "Ripple XRP", symbol: "XRP", img: "/images/xrp-xrp-logo.png", period: "4 hours", stock: 10, hourly: 100, return: 400, price: 250 },
+    
+    // 6 Hours - Short & Sweet (Price: 1,200 | Return: 1,920)
+    { name: "Solona Coin", symbol: "SOL", img: "/images/solana-sol-logo.png", period: "6 hours", stock: 20, hourly: 320, return: 1920, price: 1200 },
+    
+    // 8 Hours - Quick Shift (Price: 5,000 | Return: 8,000)
+    { name: "Bitcoin", symbol: "BTC", img: "/images/bitcoin-new-logo.png", period: "8 hours", stock: 3, hourly: 1000, return: 8000, price: 5000 },
+    
+    // 10 Hours - Overnight (Price: 5,000 | Return: 8,000)
+    { name: "Ethereum", symbol: "ETH", img: "/images/ethereum-eth-logo.png", period: "10 hours", stock: 10, hourly: 800, return: 8000, price: 5000 },
+    
+    // 16 Hours (Price: 8,000 | Return: 12,800)
+    { name: "Doge Coin", symbol: "DOGE", img: "/images/dogecoin-doge-logo.png", period: "16 hours", stock: 2, hourly: 800, return: 12800, price: 8000 },
+    
+    // 20 Hours (Price: 10,000 | Return: 16,000)
+    { name: "LiteCoin", symbol: "LTC", img: "/images/litecoin-ltc-logo.png", period: "20 hours", stock: 100, hourly: 800, return: 16000, price: 10000 },
+    
+    // 24 Hours - 1 Day (Price: 15,000 | Return: 24,000)
+    { name: "BNB Coin", symbol: "BNB", img: "/images/bnb-coin-logo.png", period: "24 hours", stock: 5, hourly: 1000, return: 24000, price: 15000 },
+    
+    // 48 Hours - 2 Days (Price: 30,000 | Return: 48,000)
+    { name: "Tether", symbol: "USDT", img: "/images/tether-usdt-logo.png", period: "48 hours", stock: 8, hourly: 1000, return: 48000, price: 30000 }
   ];
 
   const State = {
@@ -59,40 +74,49 @@ const TradeApp = (() => {
       if (!gridContainer) return;
 
       gridContainer.innerHTML = MARKET_DATA.map(coin => `
-        <div class="bg-app-card border border-app-border rounded-xl flex flex-col overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-900/20">
-          <div class="h-36 sm:h-40 w-full overflow-hidden bg-app-bg relative">
-             <img src="${coin.img}" alt="${coin.name}" class="w-full h-full object-cover object-center p-0" onerror="this.src='https://via.placeholder.com/400x200?text=${coin.symbol}'">
-             <div class="absolute inset-0 bg-gradient-to-t from-app-card to-transparent opacity-60"></div>
+        <div class="crypto-card flex flex-col transition-all duration-300">
+          
+          <!-- Big Image -->
+          <div class="w-full h-36 sm:h-40 mb-4 rounded-xl overflow-hidden bg-[#0B1221]">
+             <img src="${coin.img}" alt="${coin.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=600&auto=format&fit=crop'">
           </div>
-          <div class="p-4 sm:p-5 flex-grow flex flex-col">
-            <h4 class="text-white font-bold text-lg mb-4">${coin.name}</h4>
-            <div class="space-y-2 mb-4">
-              <div class="flex justify-between items-center text-sm">
-                <span class="text-gray-400">Mining Period</span>
-                <span class="text-gray-200">${coin.period}</span>
-              </div>
-              <div class="flex justify-between items-center text-sm">
-                <span class="text-gray-400">Available Stock</span>
-                <span class="text-gray-200">${coin.stock} units</span>
-              </div>
+
+          <!-- Title -->
+          <h3 class="text-white text-xl font-bold mb-4 tracking-wide">${coin.name}</h3>
+
+          <!-- Details List -->
+          <div class="flex flex-col gap-3 text-[13px] sm:text-sm mb-5">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Mining Period</span>
+              <span class="text-white font-medium">${coin.period}</span>
             </div>
-            <div class="border-t border-app-border my-4"></div>
-            <div class="grid grid-cols-3 gap-1 text-center mt-auto pb-2">
-              <div>
-                <p class="text-app-textBlue font-bold text-[15px] sm:text-base">${coin.daily}</p>
-                <p class="text-gray-400 text-[9px] sm:text-[10px] mt-1 whitespace-nowrap">Daily Yield</p>
-              </div>
-              <div>
-                <p class="text-app-textBlue font-bold text-[15px] sm:text-base">${coin.return}</p>
-                <p class="text-gray-400 text-[9px] sm:text-[10px] mt-1 whitespace-nowrap">Total Return</p>
-              </div>
-              <div>
-                <p class="text-app-textBlue font-bold text-[15px] sm:text-base">${coin.price}</p>
-                <p class="text-gray-400 text-[9px] sm:text-[10px] mt-1 whitespace-nowrap">Price (KES)</p>
-              </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Available Stock</span>
+              <span class="text-white font-medium">${coin.stock} units</span>
             </div>
           </div>
-          <button data-action="open-qty" data-symbol="${coin.symbol}" class="w-full bg-app-btnBlue hover:bg-sky-400 text-white font-bold py-3.5 text-sm transition-colors mt-auto">
+
+          <!-- Thin Divider line -->
+          <hr class="border-t border-white/10 mb-4">
+
+          <!-- Stats Grid -->
+          <div class="grid grid-cols-3 text-center mb-5">
+            <div class="flex flex-col">
+              <span class="text-white font-bold text-lg sm:text-xl">${coin.hourly}</span>
+              <span class="text-gray-400 text-[10px] mt-1">Hourly Yield</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-white font-bold text-lg sm:text-xl">${coin.return}</span>
+              <span class="text-gray-400 text-[10px] mt-1">Total Return</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-white font-bold text-lg sm:text-xl">${coin.price}</span>
+              <span class="text-gray-400 text-[10px] mt-1">Price (KES)</span>
+            </div>
+          </div>
+
+          <!-- Start Mining Button -->
+          <button data-action="open-qty" data-symbol="${coin.symbol}" class="mt-auto w-full mining-btn text-white font-bold py-3.5 rounded-xl text-sm">
             Start Mining
           </button>
         </div>
