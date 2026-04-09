@@ -107,7 +107,7 @@ async function updateUserList() {
     alert('Session expired. Please log in again.');
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
   if (!isTokenValid(token)) {
@@ -115,7 +115,7 @@ async function updateUserList() {
     alert('Invalid session or non-admin access. Please log in again.');
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
   try {
@@ -176,7 +176,7 @@ async function updateUserList() {
       alert('Invalid session or non-admin access. Please log in again.');
       localStorage.removeItem('token');
       localStorage.removeItem('username');
-      window.location.href = '/login.html';
+      window.location.href = '/index.html';
     }
   }
 }

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('Token:', token); // Debug: Check token value
   if (!token) {
     console.warn('No token found, redirecting to login');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
 

@@ -57,7 +57,7 @@ async function updateTransactionList() {
     alert('Session expired. Please log in again.');
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
 
@@ -66,7 +66,7 @@ async function updateTransactionList() {
     alert('Invalid session or non-admin access. Please log in again.');
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
 
@@ -157,7 +157,7 @@ async function updateTransactionList() {
       alert('Invalid session or non-admin access. Please log in again.');
       localStorage.removeItem('token');
       localStorage.removeItem('username');
-      window.location.href = '/login.html';
+      window.location.href = '/index.html';
     }
   }
 }

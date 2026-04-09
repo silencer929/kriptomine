@@ -30,7 +30,7 @@ async function loadUserInfo() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('depositAmount');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
   try {
@@ -56,7 +56,7 @@ async function loadUserInfo() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('depositAmount');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
   }
 }
 function attachEventListeners() {
@@ -162,7 +162,7 @@ async function initiatePayment() {
       localStorage.removeItem('token');
       localStorage.removeItem('username');
       localStorage.removeItem('depositAmount');
-      window.location.href = '/login.html';
+      window.location.href = '/index.html';
     }
   } finally {
     payBtn.classList.remove('btn-loading');

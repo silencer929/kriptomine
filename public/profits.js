@@ -1,6 +1,6 @@
 const token = localStorage.getItem('token');
 const username = localStorage.getItem('username');
-if (!token || !username) window.location.href = '/login.html';
+if (!token || !username) window.location.href = '/index.html';
 
 const socket = io('http://localhost:3000');
 socket.emit('join', username);

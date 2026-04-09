@@ -259,7 +259,7 @@ const TradeApp = (() => {
 
   const ApiService = {
     async fetchWithAuth(url, options = {}) {
-      if (!State.token) return window.location.href = '/login.html';
+      if (!State.token) return window.location.href = '/index.html';
 
       const headers = {
         'Content-Type': 'application/json',
@@ -270,7 +270,7 @@ const TradeApp = (() => {
       const response = await fetch(url, { ...options, headers, credentials: 'include' });
       if (response.status === 401) {
         localStorage.clear();
-        window.location.href = '/login.html';
+        window.location.href = '/index.html';
       }
       
       const data = await response.json().catch(() => ({}));
@@ -447,7 +447,7 @@ const TradeApp = (() => {
   }
 
   function init() {
-    if (!State.token) return window.location.href = '/login.html';
+    if (!State.token) return window.location.href = '/index.html';
 
     setupSockets();
     UIManager.renderMarketGrid();

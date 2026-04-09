@@ -113,7 +113,7 @@ async function updateBalance() {
   if (!token || !username) {
     console.error("Token or username missing");
     showError("Please log in to view your balance.");
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
 
@@ -122,7 +122,7 @@ async function updateBalance() {
     showError("Invalid session token. Please log in again.");
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
 
@@ -140,7 +140,7 @@ async function updateBalance() {
         showError("Session expired. Please log in again.");
         localStorage.removeItem('token');
         localStorage.removeItem('username');
-        window.location.href = '/login.html';
+        window.location.href = '/index.html';
       } else {
         showError(`Failed to fetch balance: ${errorData.error || 'Unknown error'}`);
       }
@@ -185,7 +185,7 @@ async function processWithdrawal() {
   if (!token || !username) {
     console.error("Token or username missing");
     showError("Please log in to process a withdrawal.");
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
 
@@ -194,7 +194,7 @@ async function processWithdrawal() {
     showError("Invalid session token. Please log in again.");
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
 
@@ -231,7 +231,7 @@ async function processWithdrawal() {
         showError("Session expired. Please log in again.");
         localStorage.removeItem('token');
         localStorage.removeItem('username');
-        window.location.href = '/login.html';
+        window.location.href = '/index.html';
       } else {
         showError(`Withdrawal failed: ${errorData.error || 'Unknown error'}`);
       }

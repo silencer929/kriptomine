@@ -74,7 +74,7 @@ async function updateWithdrawalList() {
     alert('Session expired. Please log in again.');
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
 
@@ -83,7 +83,7 @@ async function updateWithdrawalList() {
     alert('Invalid session or non-admin access. Please log in again.');
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    window.location.href = '/login.html';
+    window.location.href = '/index.html';
     return;
   }
 
@@ -178,7 +178,7 @@ async function updateWithdrawalList() {
       alert('Invalid session or non-admin access. Please log in again.');
       localStorage.removeItem('token');
       localStorage.removeItem('username');
-      window.location.href = '/login.html';
+      window.location.href = '/index.html';
     }
   }
 }

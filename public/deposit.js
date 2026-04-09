@@ -84,7 +84,7 @@ const DepositApp = (() => {
     handleUnauthorized() {
       alert('Session expired. Please log in again.');
       localStorage.clear();
-      window.location.href = '/login.html';
+      window.location.href = '/index.html';
     },
 
     async fetch(url, options = {}) {
