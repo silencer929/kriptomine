@@ -17,10 +17,11 @@ const TradeApp = (() => {
       CSRF: '/api/csrf-token'
     }
   };
+  
 
   const MARKET_DATA = [
     // 4 Hours - Ultra Fast Bait (Price: 250 | Return: 400)
-    { name: "Ripple XRP", symbol: "XRP", img: "/images/xrp-xrp-logo.png", period: "4 hours", stock: 10, hourly: 100, return: 400, price: 250 },
+    { name: "Ripple XRP", symbol: "XRP", img: "/images/xrp-xrp-logo.png", period: "4 hours", stock: 10, hourly: 100, return: 400, price: 20 },
     
     // 6 Hours - Short & Sweet (Price: 1,200 | Return: 1,920)
     { name: "Solona Coin", symbol: "SOL", img: "/images/solana-sol-logo.png", period: "6 hours", stock: 20, hourly: 320, return: 1920, price: 1200 },
@@ -62,6 +63,25 @@ const TradeApp = (() => {
       UIManager.renderBalance();
     }
   };
+
+  function showSuccessModal(title, message) {
+    const modal = document.getElementById('success-modal');
+    document.getElementById('success-title').textContent = title;
+    document.getElementById('success-message').textContent = message;
+    
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+      modal.classList.remove('opacity-0');
+      modal.firstElementChild.classList.remove('scale-95');
+    }, 10);
+  }
+
+  function closeSuccessModal() {
+    const modal = document.getElementById('success-modal');
+    modal.classList.add('opacity-0');
+    modal.firstElementChild.classList.add('scale-95');
+    setTimeout(() => modal.classList.add('hidden'), 300);
+  }
 
   const UIManager = {
     renderBalance() {
@@ -324,7 +344,10 @@ const TradeApp = (() => {
 
         if (result && result.success) {
           ModalController.closeAll();
-          UIManager.notify(`Successfully purchased ${qty}x ${coin.name}!`);
+          showSuccessModal(
+            "Contract Started!", 
+            `You have successfully purchased ${qty}x ${coin.name}. Your mining is now active.`
+          );
           if (typeof result.newBalance !== 'undefined') State.updateBalance(Number(result.newBalance));
           else await this.loadPortfolio();
         }
@@ -399,24 +422,52 @@ const TradeApp = (() => {
       }, CONFIG.POLL_INTERVAL_MS);
     },
 
+    // This function is called when we receive a real-time update that the deposit was successful.
     async handleDepositSuccess() {
       if (State.pollInterval) clearInterval(State.pollInterval);
-      ModalController.showMpesaMessage('Deposit successful! Purchasing contract...');
       
-      // Auto-buy the contract now that balance is funded
-      await this.finalizeMining();
-      ModalController.setMpesaLoading(false);
+      ModalController.showMpesaMessage('Deposit successful! Finalizing your contract...');
+      
+      // THE FIX: Instead of buying immediately, we first refresh our local data.
+      // This ensures we have the absolute latest balance from the server before retrying the purchase.
+      await this.loadPortfolio();
+
+      // Now that State.balance is guaranteed to be up-to-date, we can safely buy.
+      const totalCost = State.pendingTotalCost;
+
+      if (State.balance >= totalCost) {
+        // The balance is now sufficient, finalize the mining.
+        await this.finalizeMining();
+      } else {
+        // This is a rare edge case, but good to handle.
+        // It means the deposit was successful but still not enough for the contract.
+        ModalController.closeAll();
+        UIManager.notify(`Deposit successful, but your new balance of KES ${State.balance.toFixed(2)} is still not enough for this purchase of KES ${totalCost.toFixed(2)}.`, true);
+      }
+      
+      // Reset the pending cost after the operation is complete or has failed.
+      State.pendingTotalCost = 0;
     }
   };
 
+  // Setup WebSocket connection for real-time updates
   function setupSockets() {
     if (typeof io !== 'undefined') {
       State.socket = io();
       State.socket.on('deposit_update', (data) => {
         const myUser = localStorage.getItem('username');
+
+        // Check if this update is for the current user and if a purchase is pending
         if (data.username === myUser && State.pendingTotalCost > 0) {
-           // Direct socket confirmation received
-           Actions.handleDepositSuccess();
+          
+          // ** THE FIX IS HERE **
+          // 1. Update the frontend's balance state immediately.
+          if (data.newBalance !== null) {
+            State.updateBalance(data.newBalance);
+          }
+          
+          // 2. Now proceed with the auto-purchase.
+          Actions.handleDepositSuccess();
         }
       });
     }
@@ -441,6 +492,8 @@ const TradeApp = (() => {
       if (target.id === 'close-qty-modal' || target.id === 'btn-cancel-mpesa' || target.id === 'modal-backdrop') {
         ModalController.closeAll();
       }
+       if (target.id === 'btn-close-success') closeSuccessModal();
+       if (target.id === 'btn-close-success-2') closeSuccessModal();
 
       if (target.id === 'deposit-btn') window.location.href = '/deposit.html';
     });

@@ -3,132 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kripto Mine- Mining Dashboard</title>
+  <title>Crypto Mining - History</title>
+  <script src="/socket.io/socket.io.js" defer></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
-  <style>
-    .input-focus {
-      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            app: {
+              bgDark: '#0B1221',
+              cardBg: '#151F32',
+              btnBlue: '#0EA5E9',
+              textBlue: '#38BDF8',
+              emerald: '#10B981'
+            }
+          }
+        }
+      }
     }
-    .input-focus:focus {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-      border-color: #60A5FA;
-    }
-    .btn-gradient {
-      background: linear-gradient(90deg, #3B82F6, #A855F7);
-      transition: transform 0.2s ease, background 0.3s ease;
-    }
-    .btn-gradient:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(90deg, #60A5FA, #C084FC);
-    }
-    .nav-item:hover .icon {
-      transform: scale(1.2);
-      transition: transform 0.2s ease;
-    }
-    .nav-item.active .icon {
-      color: #06B6D4;
-    }
-    .details-section {
-      display: none;
-    }
-    .details-section.active {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      padding: 1rem;
-      background-color: #1E293B;
-      border-radius: 0.5rem;
-      margin-top: 1rem;
-    }
-    .details-card {
-      background-color: #2D3B55;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      text-align: center;
-    }
-    .no-mining {
-      display: none;
-    }
-    .no-mining.active {
-      display: block;
-      text-align: center;
-      margin-top: 1rem;
-    }
-  </style>
+  </script>
+
 </head>
-<body class="bg-gray-900 text-white font-inter min-h-screen">
-  <div class="container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <h1 class="text-3xl font-bold mb-8">Mining Dashboard</h1>
-    <div class="bg-gray-800 rounded-2xl shadow-xl p-6">
-      <div class="flex justify-between items-center mb-4">
+<body class="min-h-screen pb-24 overflow-x-hidden font-sans history-page">
+
+  <!-- PAGE HEADER -->
+  <header class="max-w-4xl mx-auto px-4 sm:px-6 py-6 w-full">
+    <div class="flex items-center gap-2 text-gray-400 mb-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+      <h1 class="text-lg font-semibold tracking-wide">Mining Dashboard</h1>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 w-full">
+    
+    <!-- MAIN DASHBOARD CARD -->
+    <div class="bg-app-cardBg rounded-xl shadow-xl border border-white/5 p-5 sm:p-6 mb-6">
+      
+      <!-- Top Row: Balance & Buttons -->
+      <div class="flex justify-between items-start">
+        
+        <!-- Left: Balance -->
         <div>
-          <button id="collectAllBtn" class="text-lg font-semibold text-gray-200 hover:text-blue-400">Collect All</button>
-          <button id="toggleDetails" class="block text-sm text-blue-500 hover:underline mt-1" aria-expanded="false">Show Details ▼</button>
+          <p class="text-[13px] text-gray-400 mb-1">Available Mining Rewards</p>
+          <div class="flex items-center gap-2">
+            <svg class="w-6 h-6 text-app-emerald" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+            <h2 id="balance" class="text-3xl font-bold text-app-emerald tracking-tight">KES 0.00</h2>
+          </div>
         </div>
-        <div class="text-right">
-          <h3 class="text-lg font-semibold text-gray-200">Available Mining Rewards</h3>
-          <div class="flex items-center justify-end mt-2">
-            <span class="text-2xl text-emerald-500 mr-2">💰</span>
-            <span id="balance" class="text-lg font-medium text-emerald-500">KES 0.00</span>
+
+        <!-- Right: Actions -->
+        <div class="flex flex-col items-end gap-3">
+          <button id="collectAllBtn" class="bg-[#1D4ED8]/30 hover:bg-[#1D4ED8]/50 text-app-textBlue border border-app-textBlue/30 text-sm font-medium py-1.5 px-4 rounded-lg transition-colors flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Collect All
+          </button>
+          <button id="toggleDetails" class="text-app-textBlue hover:text-white text-[13px] font-medium transition-colors">
+            Hide Details ▲
+          </button>
+        </div>
+      </div>
+
+      <!-- COLLAPSIBLE DETAILS SECTION (Stats Grid) -->
+      <div id="detailsSection" class="details-section mt-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Stat 1 -->
+          <div class="bg-app-bgDark p-4 rounded-lg border border-white/5">
+            <h4 class="text-xs text-gray-400 mb-1">Total Invested</h4>
+            <p id="totalInvested" class="text-lg font-bold text-white">KES 0</p>
+          </div>
+          <!-- Stat 2 -->
+          <div class="bg-app-bgDark p-4 rounded-lg border border-white/5">
+            <h4 class="text-xs text-gray-400 mb-1">Active Mining</h4>
+            <p id="activeMining" class="text-lg font-bold text-white">0 currencies</p>
+          </div>
+          <!-- Stat 3 -->
+          <div class="bg-app-bgDark p-4 rounded-lg border border-white/5">
+            <h4 class="text-xs text-gray-400 mb-1">Daily Earnings</h4>
+            <p id="dailyEarnings" class="text-lg font-bold text-app-emerald">KES 0.00</p>
+          </div>
+          <!-- Stat 4 -->
+          <div class="bg-app-bgDark p-4 rounded-lg border border-white/5">
+            <h4 class="text-xs text-gray-400 mb-1">Hourly Rate</h4>
+            <p id="hourlyRate" class="text-lg font-bold text-app-emerald">KES 0.00</p>
           </div>
         </div>
       </div>
-      <div class="details-section" id="detailsSection">
-        <div class="details-card">
-          <h4 class="text-sm font-medium text-gray-400">Total Invested</h4>
-          <p id="totalInvested" class="text-lg font-semibold text-emerald-500">KES 0.00</p>
-        </div>
-        <div class="details-card">
-          <h4 class="text-sm font-medium text-gray-400">Active Mining</h4>
-          <p id="activeMining" class="text-lg font-semibold text-white">0 currencies</p>
-        </div>
-        <div class="details-card">
-          <h4 class="text-sm font-medium text-gray-400">Daily Earnings</h4>
-          <p id="dailyEarnings" class="text-lg font-semibold text-emerald-500">KES 0.00</p>
-        </div>
-        <div class="details-card">
-          <h4 class="text-sm font-medium text-gray-400">Hourly Rate</h4>
-          <p id="hourlyRate" class="text-lg font-semibold text-emerald-500">KES 0.00</p>
-        </div>
-      </div>
-      <div class="no-mining active" id="noMiningSection">
-        <p class="text-lg text-gray-400">You have no active mining operations.</p>
-        <button 
-          id="startMiningBtn" 
-          class="mt-4 btn-gradient text-white text-lg font-semibold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onclick="window.location.href='/trade.html'"
-        >
+    </div>
+
+    <!-- TABS NAVIGATION -->
+    <div class="flex border-b border-white/10 mb-6">
+      <button id="tab-active" class="flex-1 text-center py-3 text-sm font-semibold text-app-textBlue border-b-2 border-app-btnBlue cursor-pointer transition-colors">
+        Active Mining
+      </button>
+      <button id="tab-completed" class="flex-1 text-center py-3 text-sm font-semibold text-gray-500 hover:text-gray-300 border-b-2 border-transparent cursor-pointer transition-colors">
+        Completed
+      </button>
+    </div>
+
+    <!-- TAB 1: ACTIVE MINING CONTENT -->
+    <div id="content-active" class="tab-content active">
+      <!-- Injected by history.js -->
+      <div id="active-trades-list" class="flex flex-col gap-3"></div>
+
+      <!-- Fallback when empty -->
+      <div id="noMiningSection" class="hidden text-center py-10 bg-app-cardBg rounded-xl border border-white/5">
+        <p class="text-sm text-gray-400 mb-4">You have no active mining operations.</p>
+        <button id="startMiningBtn" class="bg-[#1D4ED8] hover:bg-blue-600 text-white text-sm font-bold py-3 px-8 rounded-lg transition-colors">
           Start Mining
         </button>
       </div>
-      <div class="flex justify-between mt-6">
-        <button 
-          id="completedBtn" 
-          class="bg-gray-700 text-white text-lg font-semibold py-3 px-6 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Completed
-        </button>
-        <button 
-          id="activeMiningBtn" 
-          class="btn-gradient text-white text-lg font-semibold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onclick="window.location.href='/no-mining.html'"
-        >
-          Active Mining
-        </button>
+    </div>
+
+    <!-- TAB 2: COMPLETED MINING CONTENT -->
+    <div id="content-completed" class="tab-content">
+      <!-- Injected by history.js -->
+      <div id="completed-trades-list" class="flex flex-col gap-3"></div>
+
+      <!-- Fallback when empty -->
+      <div id="noCompletedSection" class="hidden text-center py-10 bg-app-cardBg rounded-xl border border-white/5">
+        <p class="text-sm text-gray-400">You have no completed mining operations yet.</p>
       </div>
     </div>
-  </div>
 
-  <!-- BOTTOM APP NAVIGATION (Dynamically included from navbar.html) -->
+  </main>
+
+  <!-- Navbar Container -->
   <div id="app-nav"></div>
 
-  <!-- Shared Navbar Loader (no inline scripts) -->
-  <script src="/navbar-loader.js" defer></script>
-
-  <!-- IMPORTANT: Load your refactored JS file here -->
-  <script src="/history.js" defer></script>
+  <!-- Scripts -->
+  <script src="/navbar-loader.js"></script>
+  <script src="/history.js"></script>
 
 </body>
 </html>

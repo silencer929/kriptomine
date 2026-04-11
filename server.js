@@ -817,52 +817,178 @@ app.post('/api/admin/user/:id', verifyToken, verifyAdmin, async (req, res) => {
 
 // Start Mining
 app.post('/api/start-mining', verifyToken, async (req, res) => {
-  const { coin } = req.body;
-  const prices = {
-    BTC: 5000,
-    ETH: 4500,
-    LTC: 3000,
-    XRP: 2000,
-    DOGE: 1500,
-    USDT: 7000
+  // Exact data from frontend
+  const MARKET_DATA = {
+    XRP:  { price: 20,   hourly: 100,  return: 400,   hours: 4 },
+    SOL:  { price: 1200,  hourly: 320,  return: 1920,  hours: 6 },
+    BTC:  { price: 5000,  hourly: 1000, return: 8000,  hours: 8 },
+    ETH:  { price: 5000,  hourly: 800,  return: 8000,  hours: 10 },
+    DOGE: { price: 8000,  hourly: 800,  return: 12800, hours: 16 },
+    LTC:  { price: 10000, hourly: 800,  return: 16000, hours: 20 },
+    BNB:  { price: 15000, hourly: 1000, return: 24000, hours: 24 },
+    USDT: { price: 30000, hourly: 1000, return: 48000, hours: 48 }
   };
-  const price = prices[coin];
-  if (!price) {
-    console.error(`Invalid coin: ${coin}`);
-    return res.status(400).json({ error: 'Invalid coin' });
-  }
+  const { coin, quantity } = req.body;
+  const qty = parseInt(quantity, 10) || 1;
+
+  const coinData = MARKET_DATA[coin];
+  if (!coinData) return res.status(400).json({ error: 'Invalid coin' });
+
+  const totalCost = coinData.price * qty;
+
   let conn;
   try {
     conn = await pool.getConnection();
     await conn.beginTransaction();
-    const [userRows] = await conn.query('SELECT balance, portfolio FROM users WHERE username = ?', [req.user.username]);
+    
+    // CRITICAL FIX: Lock the user's row and check the balance *inside* the transaction
+    const [userRows] = await conn.query('SELECT balance FROM users WHERE username = ? FOR UPDATE', [req.user.username]);
+    
     if (userRows.length === 0) {
       await conn.rollback();
-      console.error(`User not found: ${req.user.username}`);
       return res.status(404).json({ error: 'User not found' });
     }
-    const { balance, portfolio } = userRows[0];
-    if (parseFloat(balance) < price) {
+    
+    const currentBalance = parseFloat(userRows[0].balance);
+    if (currentBalance < totalCost) {
       await conn.rollback();
-      console.error(`Insufficient balance for ${req.user.username}: balance=${balance}, required=${price}`);
       return res.status(400).json({ error: 'Insufficient balance' });
     }
-    const parsedPortfolio = typeof portfolio === 'string' && portfolio ? JSON.parse(portfolio) : (portfolio || {});
-    const updatedPortfolio = { ...parsedPortfolio, [coin.toLowerCase()]: (parsedPortfolio[coin.toLowerCase()] || 0) + 0.01 };
-    await conn.query('UPDATE users SET balance = balance - ?, portfolio = ? WHERE username = ?', [price, JSON.stringify(updatedPortfolio), req.user.username]);
+
+    // Now it is safe to proceed
+    await conn.query('UPDATE users SET balance = balance - ? WHERE username = ?', [totalCost, req.user.username]);
+    
+    const expiresAt = new Date(Date.now() + (coinData.hours * 60 * 60 * 1000));
     await conn.query(
-      'INSERT INTO transactions (username, type, amount, status, currency) VALUES (?, ?, ?, ?, ?)',
-      [req.user.username, 'mining', price, 'completed', coin]
+      'INSERT INTO mining_contracts (username, coin_symbol, quantity, cost, hourly_yield, total_expected_return, duration_hours, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [req.user.username, coin, qty, totalCost, coinData.hourly * qty, coinData.return * qty, coinData.hours, expiresAt]
     );
+    
+    // ... (rest of your inserts like transactions)
+
     const [newBalanceRows] = await conn.query('SELECT balance FROM users WHERE username = ?', [req.user.username]);
     await conn.commit();
-    io.emit('portfolio_update', { username: req.user.username, newBalance: parseFloat(newBalanceRows[0].balance) });
+    
     res.json({ success: true, newBalance: parseFloat(newBalanceRows[0].balance) });
+
   } catch (err) {
-    if (conn) {
-      try { await conn.rollback(); } catch (e) { console.error('Rollback error:', e.message); }
-    }
+    if (conn) await conn.rollback();
     console.error('Mining error:', err.message);
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    if (conn) conn.release();
+  }
+});
+
+// Get Account Data (Balance, Active Mining, etc.)
+app.get('/api/account-data', verifyToken, async (req, res) => {
+  try {
+    const [userRows] = await pool.query('SELECT balance FROM users WHERE username = ?', [req.user.username]);
+    if (userRows.length === 0) return res.status(404).json({ error: 'User not found' });
+    
+    // Fetch all active/uncollected contracts for this user
+    const [contracts] = await pool.query(
+      'SELECT * FROM mining_contracts WHERE username = ? AND status != ?', 
+      [req.user.username, 'collected']
+    );
+
+    let totalInvested = 0;
+    let hourlyRate = 0;
+    let activeMining = 0;
+    const activeTrades = [];
+
+    const now = new Date();
+
+    contracts.forEach(contract => {
+      totalInvested += parseFloat(contract.cost);
+      
+      const expiresAt = new Date(contract.expires_at);
+      const isCompleted = now >= expiresAt;
+      
+      if (!isCompleted) {
+        activeMining += 1;
+        hourlyRate += parseFloat(contract.hourly_yield);
+      }
+
+      // Calculate progress percentage
+      const createdAt = new Date(contract.createdAt);
+      const totalTime = expiresAt - createdAt;
+      const elapsedTime = Math.max(0, now - createdAt);
+      let progress = (elapsedTime / totalTime) * 100;
+      if (progress > 100) progress = 100;
+
+      activeTrades.push({
+        coinName: contract.coin_symbol,
+        status: isCompleted ? 'Ready to Collect' : 'Mining Active',
+        hourlyRate: contract.hourly_yield,
+        amount: contract.cost,
+        progressPercentage: progress.toFixed(1),
+        timeLeftStr: isCompleted ? 'Completed' : `${Math.ceil((expiresAt - now) / 3600000)} hrs left`
+      });
+    });
+
+    res.json({
+      balance: parseFloat(userRows[0].balance),
+      totalInvested,
+      activeMining,
+      dailyEarnings: hourlyRate * 24,
+      hourlyRate,
+      activeTrades
+    });
+
+  } catch (err) {
+    console.error('Account data error:', err.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Collect Mining Rewards
+app.post('/api/collect', verifyToken, async (req, res) => {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    await conn.beginTransaction();
+
+    // Find all contracts that have expired (time is up) but haven't been collected yet
+    const [readyContracts] = await conn.query(
+      'SELECT id, total_expected_return FROM mining_contracts WHERE username = ? AND status = ? AND expires_at <= NOW()',
+      [req.user.username, 'active']
+    );
+
+    if (readyContracts.length === 0) {
+      await conn.rollback();
+      return res.status(400).json({ error: 'No completed contracts ready for collection.'+ req.user.username  });
+    }
+
+    let totalReward = 0;
+    const contractIds = [];
+
+    readyContracts.forEach(c => {
+      totalReward += parseFloat(c.total_expected_return);
+      contractIds.push(c.id);
+    });
+
+    // Mark contracts as collected
+    await conn.query(
+      'UPDATE mining_contracts SET status = ? WHERE id IN (?)',
+      ['collected', contractIds]
+    );
+
+    // Add funds to user balance
+    await conn.query('UPDATE users SET balance = balance + ? WHERE username = ?', [totalReward, req.user.username]);
+    
+    // Record transaction
+    await conn.query(
+      'INSERT INTO transactions (username, type, amount, status, currency) VALUES (?, ?, ?, ?, ?)',
+      [req.user.username, 'mining_reward', totalReward, 'completed', 'KES']
+    );
+
+    await conn.commit();
+    res.json({ success: true, message: `Collected KES ${totalReward.toFixed(2)}!` });
+    
+  } catch (err) {
+    if (conn) await conn.rollback();
+    console.error('Collect error:', err.message);
     res.status(500).json({ error: 'Server error' });
   } finally {
     if (conn) conn.release();

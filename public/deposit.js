@@ -10,7 +10,7 @@ const DepositApp = (() => {
   // 1. Configuration & Constants
   // ==========================================
   const CONFIG = {
-    MIN_DEPOSIT: 300,
+    MIN_DEPOSIT: 20,
     MAX_POLLS: 24,
     POLL_INTERVAL_MS: 5000,
     API: {

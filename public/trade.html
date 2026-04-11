@@ -184,6 +184,30 @@
           </div>
         </div>
       </div>
+
+      <!-- SUCCESS MODAL -->
+      <div id="success-modal" class="hidden opacity-0">
+        <div class="scale-95">
+          <!-- Close Button -->
+          <button id="btn-close-success" type="button" class="modal-close" aria-label="Close success modal">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+
+          <!-- Success Icon -->
+          <div class="success-icon">🎉</div>
+
+          <!-- Content -->
+          <h3 id="success-title">Congratulations!</h3>
+          <p id="success-message">Action completed successfully.</p>
+
+          <!-- Action Button -->
+          <button id="btn-close-success-2" type="button" onclick="closeSuccessModal()">
+            Awesome, let's go!
+          </button>
+        </div>
+      </div>
   <!-- Navbar Container (Managed by navbar.js) -->
   <div id="app-nav"></div>
 
