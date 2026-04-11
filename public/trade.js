@@ -218,7 +218,7 @@ const TradeApp = (() => {
 
       if (State.balance >= State.pendingTotalCost) {
         // Sufficient Balance - Buy Directly
-        this.finalizeMining();
+        Actions.finalizeMining();
       } else {
         // Insufficient Balance - Show M-Pesa Deposit Modal
         this.elements.qtyModal.classList.add('opacity-0', 'scale-95');
