@@ -819,7 +819,7 @@ app.post('/api/admin/user/:id', verifyToken, verifyAdmin, async (req, res) => {
 app.post('/api/start-mining', verifyToken, async (req, res) => {
   // Exact data from frontend
   const MARKET_DATA = {
-    XRP:  { price: 20,   hourly: 100,  return: 400,   hours: 4 },
+    XRP:  { price: 250,   hourly: 100,  return: 400,   hours: 4 },
     SOL:  { price: 1200,  hourly: 320,  return: 1920,  hours: 6 },
     BTC:  { price: 5000,  hourly: 1000, return: 8000,  hours: 8 },
     ETH:  { price: 5000,  hourly: 800,  return: 8000,  hours: 10 },
