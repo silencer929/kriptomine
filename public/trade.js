@@ -218,9 +218,7 @@ const TradeApp = (() => {
 
       if (State.balance >= State.pendingTotalCost) {
         // Sufficient Balance - Buy Directly
-        if (confirm(`Confirm purchase of ${State.selectedQuantity}x ${State.activeCoin.name} for KES ${State.pendingTotalCost}?`)) {
-          Actions.finalizeMining();
-        }
+        this.finalizeMining();
       } else {
         // Insufficient Balance - Show M-Pesa Deposit Modal
         this.elements.qtyModal.classList.add('opacity-0', 'scale-95');

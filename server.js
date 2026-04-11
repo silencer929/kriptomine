@@ -816,10 +816,6 @@ app.post('/api/admin/user/:id', verifyToken, verifyAdmin, async (req, res) => {
 });
 
 // Start Mining
-// In server.js
-
-// Hardcoded market data for price/duration validation.
-// This should always be the single source of truth for your backend calculations.
 const MARKET_DATA = {
   XRP:  { name: "Ripple XRP",  price: 250,   hourly: 100,  return: 400,   hours: 4  },
   SOL:  { name: "Solona Coin", price: 1200,  hourly: 320,  return: 1920,  hours: 6  },
