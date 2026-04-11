@@ -816,66 +816,97 @@ app.post('/api/admin/user/:id', verifyToken, verifyAdmin, async (req, res) => {
 });
 
 // Start Mining
+// In server.js
+
+// Hardcoded market data for price/duration validation.
+// This should always be the single source of truth for your backend calculations.
+const MARKET_DATA = {
+  XRP:  { name: "Ripple XRP",  price: 250,   hourly: 100,  return: 400,   hours: 4  },
+  SOL:  { name: "Solona Coin", price: 1200,  hourly: 320,  return: 1920,  hours: 6  },
+  BTC:  { name: "Bitcoin",     price: 5000,  hourly: 1000, return: 8000,  hours: 8  },
+  ETH:  { name: "Ethereum",    price: 5000,  hourly: 800,  return: 8000,  hours: 10 },
+  DOGE: { name: "Doge Coin",   price: 8000,  hourly: 800,  return: 12800, hours: 16 },
+  LTC:  { name: "LiteCoin",    price: 10000, hourly: 800,  return: 16000, hours: 20 },
+  BNB:  { name: "BNB Coin",    price: 15000, hourly: 1000, return: 24000, hours: 24 },
+  USDT: { name: "Tether",      price: 30000, hourly: 1000, return: 48000, hours: 48 }
+};
+
 app.post('/api/start-mining', verifyToken, async (req, res) => {
-  // Exact data from frontend
-  const MARKET_DATA = {
-    XRP:  { price: 250,   hourly: 100,  return: 400,   hours: 4 },
-    SOL:  { price: 1200,  hourly: 320,  return: 1920,  hours: 6 },
-    BTC:  { price: 5000,  hourly: 1000, return: 8000,  hours: 8 },
-    ETH:  { price: 5000,  hourly: 800,  return: 8000,  hours: 10 },
-    DOGE: { price: 8000,  hourly: 800,  return: 12800, hours: 16 },
-    LTC:  { price: 10000, hourly: 800,  return: 16000, hours: 20 },
-    BNB:  { price: 15000, hourly: 1000, return: 24000, hours: 24 },
-    USDT: { price: 30000, hourly: 1000, return: 48000, hours: 48 }
-  };
   const { coin, quantity } = req.body;
-  const qty = parseInt(quantity, 10) || 1;
-
+  const qty = parseInt(quantity, 10);
+  
+  // 1. INPUT VALIDATION
+  if (!coin || !MARKET_DATA[coin]) {
+    return res.status(400).json({ error: `Invalid coin symbol provided.` });
+  }
+  if (isNaN(qty) || qty < 1) {
+    return res.status(400).json({ error: 'A valid quantity is required.' });
+  }
+  
   const coinData = MARKET_DATA[coin];
-  if (!coinData) return res.status(400).json({ error: 'Invalid coin' });
-
   const totalCost = coinData.price * qty;
+  const totalHourly = coinData.hourly * qty;
+  const totalReturn = coinData.return * qty;
 
   let conn;
   try {
+    // 2. START DATABASE TRANSACTION
     conn = await pool.getConnection();
     await conn.beginTransaction();
     
-    // CRITICAL FIX: Lock the user's row and check the balance *inside* the transaction
+    // 3. SECURELY CHECK BALANCE
+    // 'FOR UPDATE' locks the user's row, preventing any other process (like a deposit)
+    // from changing the balance until this transaction is complete.
+    // This is the CRITICAL fix for race conditions.
     const [userRows] = await conn.query('SELECT balance FROM users WHERE username = ? FOR UPDATE', [req.user.username]);
     
     if (userRows.length === 0) {
-      await conn.rollback();
+      await conn.rollback(); // Release the lock
       return res.status(404).json({ error: 'User not found' });
     }
     
     const currentBalance = parseFloat(userRows[0].balance);
     if (currentBalance < totalCost) {
-      await conn.rollback();
-      return res.status(400).json({ error: 'Insufficient balance' });
+      await conn.rollback(); // Release the lock
+      return res.status(400).json({ error: `Insufficient balance. Required: ${totalCost}, Available: ${currentBalance}` });
     }
 
-    // Now it is safe to proceed
+    // 4. PERFORM FINANCIAL OPERATIONS (Now that balance is confirmed)
+    // 4a. Deduct the cost from the user's balance
     await conn.query('UPDATE users SET balance = balance - ? WHERE username = ?', [totalCost, req.user.username]);
     
+    // 4b. Record the purchase in the general transactions log
+    await conn.query(
+      'INSERT INTO transactions (username, type, amount, status, currency) VALUES (?, ?, ?, ?, ?)',
+      [req.user.username, 'mining_purchase', totalCost, 'completed', coin]
+    );
+
+    // 4c. Register the new active contract with its expiration date
     const expiresAt = new Date(Date.now() + (coinData.hours * 60 * 60 * 1000));
     await conn.query(
       'INSERT INTO mining_contracts (username, coin_symbol, quantity, cost, hourly_yield, total_expected_return, duration_hours, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [req.user.username, coin, qty, totalCost, coinData.hourly * qty, coinData.return * qty, coinData.hours, expiresAt]
+      [req.user.username, coin, qty, totalCost, totalHourly, totalReturn, coinData.hours, expiresAt]
     );
-    
-    // ... (rest of your inserts like transactions)
 
+    // 5. COMMIT TRANSACTION & SEND RESPONSE
+    // Retrieve the final balance after all operations
     const [newBalanceRows] = await conn.query('SELECT balance FROM users WHERE username = ?', [req.user.username]);
+    
+    // All operations were successful, so commit them to the database.
     await conn.commit();
     
+    // Let the frontend know everything was successful.
     res.json({ success: true, newBalance: parseFloat(newBalanceRows[0].balance) });
 
   } catch (err) {
+    // If ANY step above failed, roll back all database changes.
     if (conn) await conn.rollback();
-    console.error('Mining error:', err.message);
-    res.status(500).json({ error: 'Server error' });
+    
+    console.error(`[Start Mining Error for ${req.user.username}]:`, err.message);
+    res.status(500).json({ error: 'An internal server error occurred. Please try again.' });
+
   } finally {
+    // Always release the database connection back to the pool.
     if (conn) conn.release();
   }
 });
