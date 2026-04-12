@@ -21,7 +21,7 @@ const TradeApp = (() => {
 
   const MARKET_DATA = [
     // 4 Hours - Ultra Fast Bait (Price: 250 | Return: 400)
-    { name: "Ripple XRP", symbol: "XRP", img: "/images/xrp-xrp-logo.png", period: "4 hours", stock: 10, hourly: 100, return: 400, price: 250 },
+    { name: "Ripple XRP", symbol: "XRP", img: "/images/xrp-xrp-logo.png", period: "4 hours", stock: 10, hourly: 400, return: 1600, price: 1000 },
     
     // 6 Hours - Short & Sweet (Price: 1,200 | Return: 1,920)
     { name: "Solona Coin", symbol: "SOL", img: "/images/solana-sol-logo.png", period: "6 hours", stock: 20, hourly: 320, return: 1920, price: 1200 },

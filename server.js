@@ -817,7 +817,7 @@ app.post('/api/admin/user/:id', verifyToken, verifyAdmin, async (req, res) => {
 
 // Start Mining
 const MARKET_DATA = {
-  XRP:  { name: "Ripple XRP",  price: 250,   hourly: 100,  return: 400,   hours: 4  },
+  XRP:  { name: "Ripple XRP",  price: 1000,   hourly: 400,  return: 1600,   hours: 4  },
   SOL:  { name: "Solona Coin", price: 1200,  hourly: 320,  return: 1920,  hours: 6  },
   BTC:  { name: "Bitcoin",     price: 5000,  hourly: 1000, return: 8000,  hours: 8  },
   ETH:  { name: "Ethereum",    price: 5000,  hourly: 800,  return: 8000,  hours: 10 },
