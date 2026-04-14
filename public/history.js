@@ -109,20 +109,41 @@ const HistoryApp = (() => {
       }
 
       noCompletedSection.classList.add('hidden');
-      completedTradesList.innerHTML = trades.map(trade => `
-        <div class="bg-app-bgDark border border-white/5 rounded-xl p-4 flex justify-between items-center shadow-sm">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
+      completedTradesList.innerHTML = trades.map(trade => {
+        const completionDate = new Intl.DateTimeFormat('en-US', { 
+          month: 'short', day: 'numeric', year: 'numeric' 
+        }).format(new Date(trade.completedDate));
+
+        return `
+        <div class="bg-app-bgDark border border-white/5 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+          
+          <!-- Top Row: Coin Name & Date -->
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
               <span class="font-bold text-gray-300 text-[15px]">${trade.coinName}</span>
-              <span class="text-[10px] bg-gray-700/50 text-gray-400 px-2 py-0.5 rounded uppercase font-bold">Ended</span>
+              <span class="text-[10px] bg-gray-700/50 text-gray-400 px-2 py-0.5 rounded uppercase font-bold tracking-widest">Collected</span>
             </div>
-            <span class="text-[11px] text-gray-500 uppercase tracking-widest">Invested: ${CONFIG.CURRENCY} ${trade.amount}</span>
+            <span class="text-[11px] text-gray-500 font-medium">${completionDate}</span>
           </div>
-          <div class="text-right">
-            <span class="block text-[#10B981] font-bold text-sm">Earned: ${CONFIG.CURRENCY} ${trade.totalReturn || 0}</span>
+
+          <!-- Bottom Row: Financials -->
+          <div class="grid grid-cols-3 text-center bg-[#0B1221] p-3 rounded-lg border border-white/5">
+            <div>
+              <p class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Invested</p>
+              <p class="text-sm font-bold text-gray-300 mt-1">${CONFIG.CURRENCY} ${parseFloat(trade.amount).toFixed(2)}</p>
+            </div>
+            <div>
+              <p class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Returned</p>
+              <p class="text-sm font-bold text-gray-300 mt-1">${CONFIG.CURRENCY} ${parseFloat(trade.totalReturn).toFixed(2)}</p>
+            </div>
+            <div>
+              <p class="text-[10px] text-app-emerald uppercase tracking-widest font-semibold">Net Profit</p>
+              <p class="text-sm font-bold text-app-emerald mt-1">+${CONFIG.CURRENCY} ${parseFloat(trade.netProfit).toFixed(2)}</p>
+            </div>
           </div>
+
         </div>
-      `).join('');
+      `}).join('');
     },
 
     toggleDetails() {
@@ -225,11 +246,12 @@ const HistoryApp = (() => {
   // 4. Business Logic (Actions)
   // ==========================================
   const Actions = {
+
     async fetchAccountData() {
       try {
         const data = await ApiService.fetchWithAuth(CONFIG.API.ACCOUNT_DATA);
-        
-        State.accountData = {
+
+          State.accountData = {
           balance: data.balance || 0,
           totalInvested: data.totalInvested || 0,
           activeMining: data.activeMining || 0,
@@ -241,7 +263,7 @@ const HistoryApp = (() => {
 
         UI.updateSummary(State.accountData);
         UI.renderActiveTrades(State.accountData.activeTrades);
-        UI.renderCompletedTrades(State.accountData.completedTrades);
+        UI.renderCompletedTrades(State.accountData.completedTrades); // <-- Call the updated function
 
       } catch (error) {
         console.error('Failed to load account data:', error);

@@ -1,6 +1,8 @@
 console.log('Loading server.js at', new Date().toLocaleString('en-US', { timeZone: 'Africa/Nairobi' }));
 
 require('dotenv').config();
+const multer = require('multer');
+const upload = multer({ dest: 'public/uploads/' });
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -910,25 +912,33 @@ app.post('/api/start-mining', verifyToken, async (req, res) => {
 // Get Account Data (Balance, Active Mining, etc.)
 app.get('/api/account-data', verifyToken, async (req, res) => {
   try {
-    const [userRows] = await pool.query('SELECT balance FROM users WHERE username = ?', [req.user.username]);
+    const username = req.user.username;
+    
+    // Fetch user balance
+    const [userRows] = await pool.query('SELECT balance FROM users WHERE username = ?', [username]);
     if (userRows.length === 0) return res.status(404).json({ error: 'User not found' });
     
-    // Fetch all active/uncollected contracts for this user
-    const [contracts] = await pool.query(
-      'SELECT * FROM mining_contracts WHERE username = ? AND status != ?', 
-      [req.user.username, 'collected']
+    // Fetch all active/uncollected contracts
+    const [activeContracts] = await pool.query(
+      'SELECT * FROM mining_contracts WHERE username = ? AND status != ? ORDER BY expires_at ASC', 
+      [username, 'collected']
     );
 
+    // --- NEW: Fetch all collected contracts ---
+    const [completedContracts] = await pool.query(
+      'SELECT * FROM mining_contracts WHERE username = ? AND status = ? ORDER BY expires_at DESC LIMIT 50',
+      [username, 'collected']
+    );
+
+    // --- Process Data for both lists ---
     let totalInvested = 0;
     let hourlyRate = 0;
     let activeMining = 0;
     const activeTrades = [];
-
     const now = new Date();
 
-    contracts.forEach(contract => {
+    activeContracts.forEach(contract => {
       totalInvested += parseFloat(contract.cost);
-      
       const expiresAt = new Date(contract.expires_at);
       const isCompleted = now >= expiresAt;
       
@@ -936,23 +946,29 @@ app.get('/api/account-data', verifyToken, async (req, res) => {
         activeMining += 1;
         hourlyRate += parseFloat(contract.hourly_yield);
       }
-
-      // Calculate progress percentage
+      
       const createdAt = new Date(contract.createdAt);
-      const totalTime = expiresAt - createdAt;
+      const totalTime = Math.max(1, expiresAt - createdAt);
       const elapsedTime = Math.max(0, now - createdAt);
-      let progress = (elapsedTime / totalTime) * 100;
-      if (progress > 100) progress = 100;
+      const progress = Math.min(100, (elapsedTime / totalTime) * 100);
 
       activeTrades.push({
         coinName: contract.coin_symbol,
-        status: isCompleted ? 'Ready to Collect' : 'Mining Active',
+        status: isCompleted ? 'Ready to Collect' : 'Mining',
         hourlyRate: contract.hourly_yield,
         amount: contract.cost,
         progressPercentage: progress.toFixed(1),
-        timeLeftStr: isCompleted ? 'Completed' : `${Math.ceil((expiresAt - now) / 3600000)} hrs left`
+        timeLeftStr: isCompleted ? 'Completed' : `${Math.ceil((expiresAt - now) / 3600000)}h left`
       });
     });
+
+    const completedTrades = completedContracts.map(contract => ({
+      coinName: contract.coin_symbol,
+      amount: contract.cost,
+      totalReturn: contract.total_expected_return,
+      netProfit: parseFloat(contract.total_expected_return) - parseFloat(contract.cost),
+      completedDate: contract.expires_at // The date it finished
+    }));
 
     res.json({
       balance: parseFloat(userRows[0].balance),
@@ -960,7 +976,8 @@ app.get('/api/account-data', verifyToken, async (req, res) => {
       activeMining,
       dailyEarnings: hourlyRate * 24,
       hourlyRate,
-      activeTrades
+      activeTrades,
+      completedTrades // <-- Add the new array here
     });
 
   } catch (err) {
@@ -1017,6 +1034,76 @@ app.post('/api/collect', verifyToken, async (req, res) => {
     if (conn) await conn.rollback();
     console.error('Collect error:', err.message);
     res.status(500).json({ error: 'Server error' });
+  } finally {
+    if (conn) conn.release();
+  }
+});
+
+// GET /api/proofs (Public endpoint - Now much faster and safer)
+app.get('/api/proofs', async (req, res) => {
+  try {
+    // This query is now self-contained and does NOT depend on the users table.
+    const [proofs] = await pool.query(
+      `SELECT image_url, caption, createdAt, masked_phone 
+       FROM withdrawal_proofs
+       WHERE is_verified = 1 
+       ORDER BY createdAt DESC`
+    );
+
+    // The data is already in the correct format, so we can send it directly.
+    const formattedProofs = proofs.map(p => ({
+      imageUrl: p.image_url,
+      caption: p.caption,
+      date: p.createdAt,
+      phone: p.masked_phone // We now use the saved masked phone
+    }));
+    
+    res.json(formattedProofs);
+  } catch (err) {
+    console.error('Error fetching proofs:', err.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /api/proofs/upload (Protected endpoint - Now saves the masked phone)
+app.post('/api/proofs/upload', verifyToken, upload.single('screenshot'), async (req, res) => {
+  const { caption } = req.body;
+  const username = req.user.username;
+  
+  if (!req.file) {
+    return res.status(400).json({ error: 'A screenshot file is required.' });
+  }
+  
+  // In production, upload req.file.path to a CDN (S3, Cloudinary)
+  const imageUrl = `/uploads/${req.file.filename}`;
+
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    await conn.beginTransaction();
+
+    // 1. Get the user's mobile number to create a masked copy
+    const [userRows] = await conn.query('SELECT mobile FROM users WHERE username = ?', [username]);
+    let maskedPhone = 'Anonymous';
+    if (userRows.length > 0 && userRows[0].mobile) {
+      const phone = userRows[0].mobile;
+      // Masking logic: e.g., 254712345678 -> 254***678
+      maskedPhone = `${phone.substring(0, 3)}****${phone.substring(phone.length - 3)}`;
+    }
+
+    // 2. Insert the proof along with the pre-masked phone number
+    await conn.execute(
+      'INSERT INTO withdrawal_proofs (username, image_url, caption, masked_phone, is_verified) VALUES (?, ?, ?, ?, ?)',
+      [username, imageUrl, caption, maskedPhone, 0] // New proofs are unverified by default
+    );
+    
+    await conn.commit();
+    res.status(201).json({ success: true, message: 'Proof submitted for verification.' });
+
+  } catch (err) {
+    if (conn) await conn.rollback();
+    console.error('Error saving proof:', err.message);
+    res.status(500).json({ error: 'Server error while saving proof.' });
   } finally {
     if (conn) conn.release();
   }

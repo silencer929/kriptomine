@@ -3,226 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CryptoMiningPro - Portfolio</title>
+  <title>Crypto Mining - Withdrawal Proofs</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
   <link rel="stylesheet" href="/styles.css">
+  <script src="/socket.io/socket.io.js" defer></script>
 </head>
-<body class="bg-gradient-to-b from-blue-900 to-blue-800 text-white">
-  <div class="container max-w-[1280px] mx-auto p-5">
-    <div class="main-content">
-      <div class="top-bar flex justify-between items-center p-3 bg-gray-800 shadow-md rounded-lg relative">
-        <div class="user-info flex items-center space-x-3 absolute" style="left: 2%;">
-          <div class="avatar bg-blue-500 rounded-full w-[40px] h-[40px] flex items-center justify-center font-bold text-white cursor-pointer" id="avatar" onclick="viewProfile()">U</div>
-          <div class="user-details">
-            <span class="user-name font-semibold text-[18px]" id="user-name">Loading...</span>
-            <span class="mobile text-[14px] text-gray-400 block" id="user-mobile">Mobile: Loading...</span>
-          </div>
-        </div>
-        <div class="notification relative" style="right: 5%;">
-          <svg class="w-[30px] h-[30px] text-white cursor-pointer" fill="currentColor" viewBox="0 0 24 24" onclick="viewNotifications()"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-          <span class="red-dot absolute top-0 right-0 bg-red-500 rounded-full w-[8px] h-[8px]"></span>
-        </div>
+<body class="min-h-screen pb-24 overflow-x-hidden font-sans">
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 w-full">
+    <!-- PAGE HEADER -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 text-gray-300 mb-2">
+        <svg class="w-6 h-6 text-app-emerald" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Withdrawal Proofs</h1>
       </div>
-      <div class="transaction-section mt-5 bg-gray-800 rounded-lg p-4 shadow-md">
-        <div class="transaction-header flex justify-between items-center h-[40px]">
-          <div class="flex items-center space-x-2">
-            <span class="text-[16px] font-semibold">Transactions</span>
-            <div class="flex items-center space-x-1">
-              <span class="live bg-green-500 text-white px-2 py-1 rounded text-[12px]">LIVE</span>
-              <span class="w-[8px] h-[8px] bg-green-500 rounded-full"></span>
-            </div>
-          </div>
-          <span class="volume text-[14px] text-gray-400" id="market-volume">Volume: KES 37.09K</span>
-        </div>
-        <div id="transaction-list" class="mt-3">
-          <div class="transaction-row flex justify-between items-center py-2 border-b border-gray-700 h-[50px] cursor-pointer" onclick="viewTransactionDetails()">
-            <div class="flex items-center space-x-3">
-              <img id="trans-image" src="/images/xrp-xrp-logo.png" alt="XRP" class="coin-image w-[30px] h-[30px]" onerror="this.src='https://via.placeholder.com/30?text=XRP';">
-              <div>
-                <span id="trans-coin" class="coin text-[14px]">XRP Deposit</span>
-                <span id="trans-account" class="account text-[14px] text-gray-400 block">0.1***11</span>
-              </div>
-            </div>
-            <div class="flex items-center space-x-3">
-              <span id="trans-amount" class="amount text-[14px] text-green-500">KES 195.658</span>
-              <span id="trans-time" class="time text-[14px] text-gray-400">Just now</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="balance-section bg-blue-700 rounded-lg p-5 mt-5 shadow-md h-[80px] flex items-center justify-between">
-        <div>
-          <p class="balance-title text-[14px] text-gray-200">Total Available Balance</p>
-          <h2 class="balance-amount text-[32px] font-bold" id="portfolio-balance">KES 0.00</h2>
-        </div>
-        <div class="balance-buttons flex space-x-3">
-          <button class="deposit-btn w-[100px] h-[40px] p-2 bg-blue-600 rounded-md hover:bg-blue-700" onclick="openDepositEnhanced()">Deposit</button>
-          <button class="withdraw-btn w-[100px] h-[40px] p-2 bg-green-600 rounded-md hover:bg-green-700" onclick="openWithdraw()">Withdraw</button>
-        </div>
-      </div>
-      <div class="portfolio grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
-        <div class="crypto-card bg-gray-800 rounded-lg p-3 flex items-center space-x-3 h-[80px] cursor-pointer" onclick="viewAssetDetails('BTC')">
-          <img src="/images/bitcoin-btc-logo.png" alt="BTC" class="coin-image w-[50px] h-[50px]" onerror="this.src='https://via.placeholder.com/50?text=BTC';">
-          <div class="coin-details">
-            <p class="value text-[14px]" id="btc-value">0.00 BTC</p>
-            <p class="percentage text-[12px]" id="btc-percentage"><span class="arrow"></span>0.00%</p>
-          </div>
-        </div>
-        <div class="crypto-card bg-gray-800 rounded-lg p-3 flex items-center space-x-3 h-[80px] cursor-pointer" onclick="viewAssetDetails('ETH')">
-          <img src="/images/ethereum-eth-logo.png" alt="ETH" class="coin-image w-[50px] h-[50px]" onerror="this.src='https://via.placeholder.com/50?text=ETH';">
-          <div class="coin-details">
-            <p class="value text-[14px]" id="eth-value">0.00 ETH</p>
-            <p class="percentage text-[12px]" id="eth-percentage"><span class="arrow"></span>0.00%</p>
-          </div>
-        </div>
-        <div class="crypto-card bg-gray-800 rounded-lg p-3 flex items-center space-x-3 h-[80px] cursor-pointer" onclick="viewAssetDetails('XRP')">
-          <img src="/images/xrp-xrp-logo.png" alt="XRP" class="coin-image w-[50px] h-[50px]" onerror="this.src='https://via.placeholder.com/50?text=XRP';">
-          <div class="coin-details">
-            <p class="value text-[14px]" id="xrp-value">0.00 XRP</p>
-            <p class="percentage text-[12px]" id="xrp-percentage"><span class="arrow"></span>0.00%</p>
-          </div>
-        </div>
-        <div class="crypto-card bg-gray-800 rounded-lg p-3 flex items-center space-x-3 h-[80px] cursor-pointer" onclick="viewAssetDetails('LTC')">
-          <img src="/images/litecoin-ltc-logo.png" alt="LTC" class="coin-image w-[50px] h-[50px]" onerror="this.src='https://via.placeholder.com/50?text=LTC';">
-          <div class="coin-details">
-            <p class="value text-[14px]" id="ltc-value">0.00 LTC</p>
-            <p class="percentage text-[12px]" id="ltc-percentage"><span class="arrow"></span>0.00%</p>
-          </div>
-        </div>
-        <div class="crypto-card bg-gray-800 rounded-lg p-3 flex items-center space-x-3 h-[80px] cursor-pointer" onclick="viewAssetDetails('DOGE')">
-          <img src="/images/dogecoin-doge-logo.png" alt="DOGE" class="coin-image w-[50px] h-[50px]" onerror="this.src='https://via.placeholder.com/50?text=DOGE';">
-          <div class="coin-details">
-            <p class="value text-[14px]" id="doge-value">0.00 DOGE</p>
-            <p class="percentage text-[12px]" id="doge-percentage"><span class="arrow"></span>0.00%</p>
-          </div>
-        </div>
-        <div class="crypto-card bg-gray-800 rounded-lg p-3 flex items-center space-x-3 h-[80px] cursor-pointer" onclick="viewAssetDetails('USDT')">
-          <img src="/images/tether-usdt-logo.png" alt="USDT" class="coin-image w-[50px] h-[50px]" onerror="this.src='https://via.placeholder.com/50?text=USDT';">
-          <div class="coin-details">
-            <p class="value text-[14px]" id="usdt-value">0.00 USDT</p>
-            <p class="percentage text-[12px]" id="usdt-percentage"><span class="arrow"></span>0.00%</p>
-          </div>
-        </div>
-      </div>
-      <div class="chart-section mt-5 bg-gray-800 rounded-lg p-4 shadow-md">
-        <div class="chart-header flex justify-between items-center">
-          <span id="coin-pair" class="text-[18px] font-semibold">BTC / USD</span>
-          <div class="time-buttons flex space-x-2">
-            <button class="time-button px-3 py-1 bg-gray-700 rounded-md hover:bg-blue-600 text-[14px] w-[50px] h-[30px]" onclick="changeTime('1H')">1H</button>
-            <button class="time-button px-3 py-1 bg-blue-600 rounded-md text-[14px] w-[50px] h-[30px] active" onclick="changeTime('1D')">1D</button>
-            <button class="time-button px-3 py-1 bg-gray-700 rounded-md hover:bg-blue-600 text-[14px] w-[50px] h-[30px]" onclick="changeTime('1W')">1W</button>
-            <button class="time-button px-3 py-1 bg-gray-700 rounded-md hover:bg-blue-600 text-[14px] w-[50px] h-[30px]" onclick="changeTime('1M')">1M</button>
-            <button class="time-button px-3 py-1 bg-gray-700 rounded-md hover:bg-blue-600 text-[14px] w-[50px] h-[30px]" onclick="changeTime('1Y')">1Y</button>
-          </div>
-        </div>
-        <div class="chart-info flex justify-between mt-2 text-[14px] text-gray-400">
-          <span id="coin-price">$0.00</span>
-          <span id="coin-percentage" class="text-green-500"><span class="arrow"></span>0.00%</span>
-          <span id="last-updated" class="absolute" style="right: 5%;">Last updated: --</span>
-        </div>
-        <div class="chart-container mt-3 h-[200px]">
-          <canvas id="priceChart"></canvas>
-        </div>
-      </div>
-      <div class="section mining-section bg-gray-800 rounded-lg p-4 mt-5 shadow-md">
-        <h2 class="header text-[18px] font-semibold">Mining Services</h2>
-        <div class="mining-buttons-upper grid grid-cols-3 gap-3 mt-3">
-          <button class="mining-button p-3 bg-gray-700 rounded-md hover:bg-blue-600 flex items-center justify-center space-x-2 w-[300px] h-[100px]" onclick="openDepositEnhanced()">
-            <span class="icon text-[24px]">💼</span><span class="text-[16px]">Deposit</span>
-          </button>
-          <button class="mining-button p-3 bg-gray-700 rounded-md hover:bg-blue-600 flex items-center justify-center space-x-2 w-[300px] h-[100px]" onclick="openMiningPackages()">
-            <span class="icon text-[24px]">🗄️</span><span class="text-[16px]">Mining Packages</span>
-          </button>
-          <button class="mining-button p-3 bg-gray-700 rounded-md hover:bg-blue-600 flex items-center justify-center space-x-2 w-[300px] h-[100px]" onclick="openMyDeposits()">
-            <span class="icon text-[24px]">📉</span><span class="text-[16px]">My Deposits</span>
-          </button>
-        </div>
-        <div class="mining-buttons-lower grid grid-cols-3 gap-3 mt-3">
-          <button class="mining-button p-3 bg-gray-700 rounded-md hover:bg-blue-600 flex items-center justify-center space-x-2 w-[300px] h-[100px]" onclick="openWithdrawals()">
-            <span class="icon text-[24px]">⬇️</span><span class="text-[16px]">Withdrawals</span>
-          </button>
-          <button class="mining-button p-3 bg-gray-700 rounded-md hover:bg-blue-600 flex items-center justify-center space-x-2 w-[300px] h-[100px]" onclick="openSupport()">
-            <span class="icon text-[24px]">🎧</span><span class="text-[16px]">Support</span>
-          </button>
-          <button class="mining-button p-3 bg-gray-700 rounded-md hover:bg-blue-600 flex items-center justify-center space-x-2 w-[300px] h-[100px]" onclick="openCompany()">
-            <span class="icon text-[24px]">🌐</span><span class="text-[16px]">Company</span>
-          </button>
-        </div>
-      </div>
-      <div class="section trends-section bg-gray-800 rounded-lg p-4 mt-5 shadow-md">
-        <h2 class="header text-[18px] font-semibold">Market Trends</h2>
-        <div class="market-trends mt-3" id="market-trends"></div>
-      </div>
-      <div class="section admin-section bg-gray-800 rounded-lg p-4 mt-5 shadow-md" id="admin-section" style="display: none;">
-        <h2 class="header text-lg font-semibold">Admin Dashboard</h2>
-        <div id="admin-users">
-          <h3 class="text-md font-semibold">Users</h3>
-          <ul id="user-list" class="space-y-2"></ul>
-        </div>
-        <div id="admin-transactions" class="mt-4">
-          <h3 class="text-md font-semibold">All Transactions</h3>
-          <div id="all-transactions" class="space-y-2"></div>
-        </div>
-      </div>
+      <p class="text-gray-400 text-sm sm:text-base">See successful transaction screenshots from our community</p>
     </div>
+
+    <!-- PROOFS GRID (Injected by JavaScript) -->
+    <div id="proofs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- JS will render proof cards here -->
+    </div>
+    
+    <!-- Fallback/Loading State -->
+    <div id="grid-loader" class="text-center py-10 text-gray-500">Loading proofs...</div>
+
+  </main>
+
+  <!-- FLOATING UPLOAD BUTTON -->
+  <button id="open-upload-modal-btn" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 z-50">
+    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+  </button>
+
+  <!-- UPLOAD MODAL & BACKDROP -->
+  <div id="upload-modal-backdrop" class="fixed inset-0 z-[100] hidden opacity-0 transition-opacity"></div>
+  <div id="upload-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-md z-[101] hidden flex-col opacity-0 scale-95 transition-all">
+    <div class="flex justify-between items-center">
+      <h3 class="text-lg font-bold text-white">Upload Proof</h3>
+      <button id="close-upload-modal-btn" class="text-gray-400 hover:text-white">&times;</button>
+    </div>
+    <form id="upload-form" class="space-y-4">
+      <div>
+        <label class="text-sm text-gray-400 mb-2 block">Screenshot of Confirmation</label>
+        <div id="image-preview-box" class="w-full h-40 bg-app-bgDark border-2 border-dashed border-gray-700 rounded-lg flex items-center justify-center text-gray-500 text-sm cursor-pointer hover:border-app-btnBlue transition-colors">
+          Click to select an image
+        </div>
+        <img id="image-preview" src="" alt="Image preview" class="hidden w-full h-40 object-contain rounded-lg bg-app-bgDark mt-2">
+        <input type="file" id="image-input" accept="image/png, image/jpeg, image/jpg" class="hidden">
+      </div>
+      <div>
+        <label for="caption-input" class="text-sm text-gray-400 mb-2 block">Add a short caption (optional)</label>
+        <input type="text" id="caption-input" class="w-full bg-app-bgDark border border-gray-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. Legit platform!">
+      </div>
+      <button type="submit" id="submit-proof-btn" class="w-full bg-app-btnBlue hover:bg-sky-400 text-white font-bold py-3.5 rounded-lg text-sm transition-colors flex justify-center items-center gap-2">
+        <span id="submit-proof-text">Submit for Verification</span>
+        <svg id="submit-proof-spinner" class="hidden animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">...</svg>
+      </button>
+    </form>
   </div>
 
-  <!-- BOTTOM APP NAVIGATION (Dynamically included from navbar.html) -->
+  <!-- Navbar Container -->
   <div id="app-nav"></div>
 
-  <!-- Shared Navbar Loader (no inline scripts) -->
-  <script src="/navbar-loader.js" defer></script>
-
-  <!-- IMPORTANT: Load your refactored JS file here -->
-  <script src="/profits.js" defer></script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        window.location.href = '/index.html';
-        return;
-      }
-      try {
-        const response = await fetch('/api/portfolio', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        if (response.ok) {
-          document.getElementById('user-name').textContent = data.username || 'User';
-          document.getElementById('user-mobile').textContent = `Mobile: ${data.mobile || 'N/A'}`;
-          document.getElementById('portfolio-balance').textContent = `KES ${data.balance.toFixed(2)}`;
-          document.getElementById('avatar').textContent = data.username ? data.username[0].toUpperCase() : 'U';
-          ['btc', 'eth', 'xrp', 'ltc', 'doge', 'usdt'].forEach(coin => {
-            const holding = data.holdings.find(h => h.coin.toLowerCase() === coin) || { amount: 0, price: 0 };
-            document.getElementById(`${coin}-value`).textContent = `${holding.amount.toFixed(2)} ${coin.toUpperCase()}`;
-            document.getElementById(`${coin}-percentage`).textContent = holding.price ? `+${((holding.price / 100) * 3).toFixed(2)}%` : '0.00%';
-            document.getElementById(`${coin}-percentage`).classList.toggle('text-green-500', holding.price > 0);
-            document.getElementById(`${coin}-percentage`).classList.toggle('text-red-500', holding.price <= 0);
-          });
-          if (data.is_admin) {
-            document.getElementById('admin-section').style.display = 'block';
-            const userList = document.getElementById('user-list');
-            const transList = document.getElementById('all-transactions');
-            const adminResponse = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${token}` } });
-            const adminData = await adminResponse.json();
-            userList.innerHTML = adminData.map(u => `<li>${u.username}: KES ${u.balance.toFixed(2)} (Mobile: ${u.mobile})</li>`).join('');
-            const transResponse = await fetch('/api/history', { headers: { 'Authorization': `Bearer ${token}` } });
-            const transData = await transResponse.json();
-            transList.innerHTML = transData.map(t => `<div>${t.date}: ${t.type} ${t.amount.toFixed(2)} ${t.coin || 'KES'}</div>`).join('');
-          }
-        } else {
-          document.getElementById('error').classList.remove('hidden');
-          document.getElementById('error').textContent = data.error;
-        }
-      } catch (err) {
-        document.getElementById('error').classList.remove('hidden');
-        document.getElementById('error').textContent = 'Server error';
-      }
-    });
-  </script>
+  <!-- Scripts -->
+  <script src="/navbar-loader.js"></script>
+  <script src="/profits.js"></script>
 </body>
 </html>
