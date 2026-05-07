@@ -16,6 +16,7 @@ const axios = require('axios');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
+const QRCode = require('qrcode');
 
 const app = express();
 const server = http.createServer(app);
@@ -182,6 +183,36 @@ app.get('/api/csrf-token', (req, res) => {
   } catch (err) {
     console.error(`CSRF token generation failed for ${req.url}:`, err.message);
     res.status(500).json({ error: 'CSRF token generation failed' });
+  }
+});
+
+// Generate QR Code (Bitcoin Address)
+app.post('/api/generate-qr', verifyToken, async (req, res) => {
+  const { address } = req.body;
+
+  if (!address || typeof address !== 'string') {
+    console.error('Invalid address provided for QR code generation');
+    return res.status(400).json({ error: 'Invalid bitcoin address' });
+  }
+
+  try {
+    // Generate QR code as data URL
+    const qrDataUrl = await QRCode.toDataURL(address, {
+      errorCorrectionLevel: 'H',
+      type: 'image/png',
+      width: 200,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    });
+
+    console.log(`QR code generated for user ${req.user.username}`);
+    res.json({ success: true, qrCode: qrDataUrl });
+  } catch (err) {
+    console.error('QR code generation error:', err.message);
+    res.status(500).json({ error: 'Failed to generate QR code' });
   }
 });
 

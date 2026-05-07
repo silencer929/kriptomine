@@ -17,7 +17,8 @@ const DepositApp = (() => {
       PORTFOLIO: '/api/portfolio',
       DEPOSIT: '/api/deposit',
       CHECK_TX: '/api/check-transaction',
-      CSRF: '/api/csrf-token'
+      CSRF: '/api/csrf-token',
+      GENERATE_QR: '/api/generate-qr'
     }
   };
 
@@ -38,6 +39,14 @@ const DepositApp = (() => {
       phoneError: document.getElementById('phone-error'),
       statusMsg: document.getElementById('status-message'),
       errorMsg: document.getElementById('error-message'),
+      bitcoinBtn: document.getElementById('bitcoin-btn'),
+      bitcoinModal: document.getElementById('bitcoin-modal'),
+      closeBitcoinModal: document.getElementById('close-bitcoin-modal'),
+      closeModalBtn: document.getElementById('close-modal-btn'),
+      copyAddressBtn: document.getElementById('copy-address-btn'),
+      qrCodeContainer: document.getElementById('qr-code'),
+      bitcoinAddressDisplay: document.getElementById('bitcoin-address-display'),
+      copyBtnText: document.getElementById('copy-btn-text'),
     },
 
     setLoading(isLoading) {
@@ -70,6 +79,67 @@ const DepositApp = (() => {
 
     clearMessages() {
       this.showMessage('');
+    },
+
+    openBitcoinModal() {
+      const { bitcoinModal, qrCodeContainer, bitcoinAddressDisplay } = this.elements;
+      if (!bitcoinModal) return;
+
+      bitcoinModal.classList.remove('hidden');
+      
+      // Generate QR code if not already generated
+      if (qrCodeContainer && qrCodeContainer.innerHTML === '') {
+        this.generateQRCode(bitcoinAddressDisplay.textContent.trim());
+      }
+    },
+
+    closeBitcoinModal() {
+      const { bitcoinModal } = this.elements;
+      if (bitcoinModal) bitcoinModal.classList.add('hidden');
+    },
+
+    async generateQRCode(address) {
+      const { qrCodeContainer } = this.elements;
+      if (!qrCodeContainer) return;
+
+      try {
+        // Clear any existing QR code
+        qrCodeContainer.innerHTML = '';
+
+        // Call ApiService to generate QR code
+        const qrDataUrl = await ApiService.generateQRCode(address);
+
+        // Create image element with QR code data URL
+        const img = document.createElement('img');
+        img.src = qrDataUrl;
+        img.alt = 'Bitcoin Address QR Code';
+        img.style.borderRadius = '12px';
+        qrCodeContainer.appendChild(img);
+        console.log('QR code generated successfully');
+      } catch (error) {
+        console.error('Error generating QR code:', error.message);
+        qrCodeContainer.innerHTML = '<p class="text-red-500 text-sm">Failed to load QR code</p>';
+      }
+    },
+
+    copyToClipboard(text) {
+      const { copyAddressBtn, copyBtnText } = this.elements;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        // Visual feedback
+        const originalText = copyBtnText.textContent;
+        copyBtnText.textContent = '✓ Copied!';
+        
+        if (copyAddressBtn) copyAddressBtn.classList.add('bg-green-600');
+        
+        setTimeout(() => {
+          copyBtnText.textContent = originalText;
+          if (copyAddressBtn) copyAddressBtn.classList.remove('bg-green-600');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy. Please try again.');
+      });
     }
   };
 
@@ -125,6 +195,32 @@ const DepositApp = (() => {
         return data.csrfToken;
       } catch {
         return null;
+      }
+    },
+
+    async generateQRCode(address) {
+      if (!address || typeof address !== 'string') {
+        throw new Error('Invalid bitcoin address provided');
+      }
+
+      try {
+        const csrfToken = await this.getCsrf();
+        const headers = csrfToken ? { 'X-CSRF-Token': csrfToken } : {};
+
+        const data = await this.fetch(CONFIG.API.GENERATE_QR, {
+          method: 'POST',
+          body: JSON.stringify({ address }),
+          headers
+        });
+
+        if (!data.success || !data.qrCode) {
+          throw new Error('Invalid QR code response from server');
+        }
+
+        return data.qrCode;
+      } catch (error) {
+        console.error('QR code generation failed:', error.message);
+        throw error;
       }
     }
   };
@@ -197,7 +293,7 @@ const DepositApp = (() => {
     },
 
     bindEvents() {
-      const { amountInput, phoneInput, continueBtn } = UI.elements;
+      const { amountInput, phoneInput, continueBtn, bitcoinBtn, closeBitcoinModal, closeModalBtn, copyAddressBtn, bitcoinModal, bitcoinAddressDisplay } = UI.elements;
       
       if (amountInput) amountInput.addEventListener('input', Validator.checkForm);
       if (phoneInput) phoneInput.addEventListener('input', Validator.checkForm);
@@ -205,6 +301,33 @@ const DepositApp = (() => {
       if (continueBtn) {
         continueBtn.addEventListener('click', () => {
           if (!continueBtn.classList.contains('btn-loading')) this.processDeposit();
+        });
+      }
+
+      // Bitcoin modal events
+      if (bitcoinBtn) {
+        bitcoinBtn.addEventListener('click', () => UI.openBitcoinModal());
+      }
+
+      if (closeBitcoinModal) {
+        closeBitcoinModal.addEventListener('click', () => UI.closeBitcoinModal());
+      }
+
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => UI.closeBitcoinModal());
+      }
+
+      if (copyAddressBtn && bitcoinAddressDisplay) {
+        copyAddressBtn.addEventListener('click', () => {
+          const address = bitcoinAddressDisplay.textContent.trim();
+          UI.copyToClipboard(address);
+        });
+      }
+
+      // Close modal when clicking outside (on the backdrop)
+      if (bitcoinModal) {
+        bitcoinModal.addEventListener('click', (e) => {
+          if (e.target === bitcoinModal) UI.closeBitcoinModal();
         });
       }
     },
