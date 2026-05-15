@@ -25,7 +25,7 @@
       min-height: 100vh;
       margin: 0;
       padding: 0;
-      padding-bottom: 80px;
+      padding-bottom: 150px;
       width: 100vw;
       overflow-x: hidden;
       display: flex;
@@ -57,6 +57,10 @@
       margin-bottom: 2rem;
     }
 
+    .container .section:last-of-type {
+      margin-bottom: 4rem;
+    }
+
     .container .section:hover {
       transform: translateY(-6px);
       box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
@@ -81,6 +85,7 @@
       height: 200%;
       background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
       animation: glow 10s ease-in-out infinite;
+      pointer-events: none;
     }
 
     .container button {
@@ -94,6 +99,11 @@
       color: #fff !important;
       transition: all 0.3s ease;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    #withdraw-btn {
+      margin-top: 2rem !important;
+      margin-bottom: 2rem !important;
     }
 
     .container button:hover {
@@ -318,7 +328,7 @@
         <h3 class="text-lg font-semibold mb-2">Withdrawal Information</h3>
         <div class="info-row">
           <span>Processing Fee</span>
-          <span>5%</span>
+          <span>16%</span>
         </div>
         <div class="info-row">
           <span>Minimum Amount</span>
@@ -330,6 +340,10 @@
         </div>
       </div>
       <button id="withdraw-btn" class="w-full mt-6 text-lg font-semibold">Withdraw Funds</button>
+      <br>
+      <br>
+      <div id="withdraw-message" class="text-center text-sm mt-4"><span id="message-content"></span></div>  
+
     </div>
   </div>
   <!-- BOTTOM APP NAVIGATION (Dynamically included from navbar.html) -->
